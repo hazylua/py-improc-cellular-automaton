@@ -1,5 +1,6 @@
 import copy
 import random
+import itertools as it
 
 class CellularAutomata:
     def __init__(self, field, rule):
@@ -17,15 +18,14 @@ class CellularAutomata:
 
         for y in range(self.maxY):
             for x in range(self.maxX):
-                neighbors = list(self.neighbours(x, y))
+                neighbours = tuple(self.neighbours(x, y))
                 
-                if neighbors == rule:
+                if neighbours == self.rule:
                     field2[x][y] = 'o'
                     continue
-                
+
                 else:
                     field2[x][y] = ' ';
-                    continue
 
         return field2
 
@@ -34,29 +34,40 @@ class CellularAutomata:
         cols = len(self.field[0]) if rows else 0
         for i in range(max(0, x - 1), min(rows, x + 2)):
             for j in range(max(0, y - 1), min(cols, y + 2)):
-                if (i, j) != (x, y):
-                    yield self.field[i][j]
+                # if (i, j) != (x, y):
+                #     yield self.field[i][j]
+                yield self.field[i][j]
 
     def run(self):
         self.tick()
-        
-rows = 50
-cols = 50
-generations = 3
-matrix = [ [1] * cols ] * rows
 
-for i, row in enumerate(matrix):
-    matrix[i] = 45 * ['o'] + 5 * [' ']
-    random.shuffle(matrix[i])
+def write_field(name, matrix):    
+    with open(f'{name}.txt', 'w+') as f:
+        for row in matrix:
+            f.write(' '.join([str(cell) for cell in row]) + '\n')
+        f.close()
+    
+def generate_field(rows, cols, ratio):
+    matrix = [ [1] * cols ] * rows
+    
+    dead_cells = int(cols * ratio)
+    alive_cells = cols - dead_cells
+    # print(dead_cells, alive_cells)
+    
+    for i, row in enumerate(matrix):
+        matrix[i] = alive_cells * ['o'] + dead_cells * [' ']
+        random.shuffle(matrix[i])
+    
+    return matrix
 
-rule = ['o'] * 8
+def compare_all_rules(deadc, alivec):
+    field = generate_field(100, 100, 1/100)
+    write_field("field", field)
+    
+    ruleset = list(it.product([deadc, alivec], repeat=9))
+    for i, rule in enumerate(ruleset):
+        ca = CellularAutomata(field, rule)
+        ca.run()
+        write_field(f'./results/result_{i}', ca.field)
 
-ca = CellularAutomata(matrix, rule)
-
-for i in range(generations):
-    for i, row in enumerate(ca.field):
-        for j, value in enumerate(row):
-            print(ca.field[i][j], end='  ')
-        print()
-    ca.run()
-    print('###' * cols)
+compare_all_rules('o', ' ')
