@@ -1,11 +1,14 @@
 import copy
 import random
 import itertools as it
+import image_operations
 
 class CellularAutomata:
     def __init__(self, field, rule):
-        self.maxX = len(field)
-        self.maxY = len(field[0])
+        # self.maxX = len(field)
+        # self.maxY = len(field[0])
+        self.maxX = field.size[0]
+        self.maxY = field.size[1]
         self.field = field
         self.rule = rule
 
@@ -21,53 +24,32 @@ class CellularAutomata:
                 neighbours = tuple(self.neighbours(x, y))
                 
                 if neighbours == self.rule:
-                    field2[x][y] = 'o'
+                    field2.putpixel((x, y), (0, 0, 0))
                     continue
 
                 else:
-                    field2[x][y] = ' ';
+                    field2.putpixel((x, y), (255, 255, 255))
 
         return field2
 
     def neighbours(self, x, y):
-        rows = len(self.field)
-        cols = len(self.field[0]) if rows else 0
+        rows = self.maxX
+        cols = self.maxY if rows else 0
         for i in range(max(0, x - 1), min(rows, x + 2)):
             for j in range(max(0, y - 1), min(cols, y + 2)):
-                # if (i, j) != (x, y):
-                #     yield self.field[i][j]
-                yield self.field[i][j]
+                yield self.field.getpixel((i, j))
 
     def run(self):
         self.tick()
 
-def write_field(name, matrix):    
-    with open(f'{name}.txt', 'w+') as f:
-        for row in matrix:
-            f.write(' '.join([str(cell) for cell in row]) + '\n')
-        f.close()
+def compare_all_rules():
+    bitmap = image_operations.bitmap()
+    field = image_operations.to_binary(bitmap)
     
-def generate_field(rows, cols, ratio):
-    matrix = [ [1] * cols ] * rows
-    
-    dead_cells = int(cols * ratio)
-    alive_cells = cols - dead_cells
-    # print(dead_cells, alive_cells)
-    
-    for i, row in enumerate(matrix):
-        matrix[i] = alive_cells * ['o'] + dead_cells * [' ']
-        random.shuffle(matrix[i])
-    
-    return matrix
-
-def compare_all_rules(deadc, alivec):
-    field = generate_field(100, 100, 1/100)
-    write_field("field", field)
-    
-    ruleset = list(it.product([deadc, alivec], repeat=9))
+    ruleset = list(it.product([(0, 0, 0), (255, 255, 255)], repeat=9))
     for i, rule in enumerate(ruleset):
         ca = CellularAutomata(field, rule)
         ca.run()
-        write_field(f'./results/result_{i}', ca.field)
+        ca.field.save(f'./results/result_{i}.jpg')
 
-compare_all_rules('o', ' ')
+compare_all_rules()
