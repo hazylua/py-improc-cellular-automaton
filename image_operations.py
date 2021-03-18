@@ -12,6 +12,3 @@ def bitmap():
 
 def save(img, path):
     cv.imwrite(path, img)
-
-ret, field = bitmap()
-cv.imwrite('./results/result.jpg', field)
