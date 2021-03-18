@@ -7,8 +7,6 @@ class CellularAutomata:
     def __init__(self, field, rule):
         self.maxX = len(field)
         self.maxY = len(field[0])
-        # self.maxX = field.size[0]
-        # self.maxY = field.size[1]
         self.field = field
         self.rule = rule
 
