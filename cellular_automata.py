@@ -5,10 +5,10 @@ import image_operations
 
 class CellularAutomata:
     def __init__(self, field, rule):
-        # self.maxX = len(field)
-        # self.maxY = len(field[0])
-        self.maxX = field.size[0]
-        self.maxY = field.size[1]
+        self.maxX = len(field)
+        self.maxY = len(field[0])
+        # self.maxX = field.size[0]
+        # self.maxY = field.size[1]
         self.field = field
         self.rule = rule
 
@@ -21,14 +21,14 @@ class CellularAutomata:
 
         for y in range(self.maxY):
             for x in range(self.maxX):
-                neighbours = tuple(self.neighbours(x, y))
+                neighbours = list(self.neighbours(x, y))
                 
                 if neighbours == self.rule:
-                    field2.putpixel((x, y), (0, 0, 0))
+                    field2[x][y]
                     continue
 
                 else:
-                    field2.putpixel((x, y), (255, 255, 255))
+                    field2[x][y]
 
         return field2
 
@@ -37,19 +37,18 @@ class CellularAutomata:
         cols = self.maxY if rows else 0
         for i in range(max(0, x - 1), min(rows, x + 2)):
             for j in range(max(0, y - 1), min(cols, y + 2)):
-                yield self.field.getpixel((i, j))
+                yield self.field[i][j]
 
     def run(self):
         self.tick()
 
 def compare_all_rules():
-    bitmap = image_operations.bitmap()
-    field = image_operations.to_binary(bitmap)
+    ret, field = image_operations.bitmap()
     
-    ruleset = list(it.product([(0, 0, 0), (255, 255, 255)], repeat=9))
+    ruleset = list(it.product([0, 1], repeat=9))
     for i, rule in enumerate(ruleset):
         ca = CellularAutomata(field, rule)
         ca.run()
-        ca.field.save(f'./results/result_{i}.jpg')
+        image_operations.save(ca.field, f'./results/result_{i}.jpg')
 
 compare_all_rules()

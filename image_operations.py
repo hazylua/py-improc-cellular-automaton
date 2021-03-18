@@ -1,17 +1,17 @@
-from PIL import Image, ImageFilter
+import cv2 as cv
+import numpy as np
+from matplotlib import pyplot as plt
+
+img_path = './white_cat.jpg'
 
 def bitmap():
-    img = Image.open("./black_cat.jpg")
-    bitmap = img.convert('RGB')
-    
-    return bitmap
-    
-def to_binary(bitmap):
-    for row in range(bitmap.size[1]):
-        for col in range(bitmap.size[0]):
-            if(bitmap.getpixel((col, row)) > (120, 120, 120)):
-                bitmap.putpixel((col, row), (255, 255, 255))
-            else:
-                bitmap.putpixel((col, row), (0, 0, 0))
-    return bitmap
+    img = cv.imread(img_path)
+    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    binary = cv.threshold(img,127,255,cv.THRESH_BINARY)
+    return binary
 
+def save(img, path):
+    cv.imwrite(path, img)
+
+ret, field = bitmap()
+cv.imwrite('./results/result.jpg', field)
