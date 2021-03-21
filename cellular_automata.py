@@ -41,7 +41,7 @@ class CellularAutomata:
         self.tick()
 
 def compare_all_rules():
-    ret, field = image_operations.bitmap()
+    ret, field = image_operations.read()
     
     ruleset = list(it.product([0, 1], repeat=9))
     for i, rule in enumerate(ruleset):
