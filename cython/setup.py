@@ -2,5 +2,7 @@ from setuptools import setup
 from Cython.Build import cythonize
 
 setup(
-    ext_modules = cythonize("ca.pyx")
+    name="Cellular Automata and Images",
+    ext_modules = cythonize("ca.pyx"),
+    zip_safe=False
 )
