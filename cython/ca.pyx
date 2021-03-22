@@ -48,7 +48,7 @@ cdef class CellularAutomata:
         cdef int y, x
         for y in range(0, self.maxY):
             for x in range(0, self.maxX):
-                neighbours = list(self.neighbours(x, y))
+                neighbours = tuple(self.neighbours(x, y))
                 
                 if neighbours == self.rule:
                     field2[x][y]
