@@ -6,6 +6,18 @@ import cv2 as cv
 import numpy as np
 
 img_path = '../samples/white_cat.jpg'
+results = './results'
+
+cdef clear():
+    for filename in os.listdir(results):
+        file_path = os.path.join(results, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason %s' % (file_path, e))
 
 cdef read():
     img = cv.imread(img_path)
@@ -58,6 +70,8 @@ cdef class CellularAutomata:
         self.tick()
 
 def compare_all_rules():
+    clear()
+
     ret, field = read()
     
     ruleset = list(it.product([0, 1], repeat=9))
