@@ -74,7 +74,7 @@ def compare_all_rules():
 
     ret, field = read()
     
-    ruleset = list(it.product([0, 1], repeat=9))
+    ruleset = list(it.product([0, 255], repeat=9))
     for i, rule in enumerate(ruleset):
         ca = CellularAutomata(field, rule)
         ca.run()
