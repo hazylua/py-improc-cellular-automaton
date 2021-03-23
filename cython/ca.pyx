@@ -6,8 +6,8 @@ import itertools as it
 import cv2 as cv
 import numpy as np
 
-img_path = '../samples/white_cat.jpg'
-results = './results'
+cdef str img_path = '../samples/white_cat.jpg'
+cdef str results = './results'
 
 cdef clear():
     for filename in os.listdir(results):
@@ -32,7 +32,7 @@ cdef save(img, path):
 cdef class CellularAutomata:
     cdef int maxX, maxY
     cdef unsigned char [:, :] field
-    cdef rule
+    cdef tuple rule
 
     def __init__(self, field, rule):
         self.maxX = len(field)
@@ -52,7 +52,7 @@ cdef class CellularAutomata:
                 neighbours = tuple(self.neighbours(x, y))
                 
                 if neighbours == self.rule:
-                    field2[x][y]
+                    field2[x][y] = 255
                     continue
 
                 else:
