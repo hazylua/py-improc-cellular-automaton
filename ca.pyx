@@ -1,12 +1,11 @@
 import os, shutil
-import copy
-import random
+
 import itertools as it
 
 import cv2 as cv
 import numpy as np
 
-cdef str img_path = '../samples/white_cat.jpg'
+cdef str img_path = './samples/white_cat.jpg'
 cdef str results = './results'
 
 cdef clear():
@@ -25,6 +24,15 @@ cdef read():
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     binary = cv.threshold(img, 120, 255, cv.THRESH_BINARY)
     return binary
+
+cdef decomp():
+    img = cv.imread(img_path)
+    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    cdef int i
+    for i in range(0, 255):
+        binary = cv.threshold(img, i, 255, cv.THRESH_BINARY)
+        ret, field = binary
+        cv.imwrite(f'./results/decomposition/threshat{i}.jpg', np.float32(field))
 
 cdef save(img, path):
     cv.imwrite(path, np.float32(img))
@@ -70,15 +78,16 @@ cdef class CellularAutomata:
     def run(self):
         self.tick()
 
-def compare_all_rules():
+cdef compare_all_rules():
     clear()
 
     ret, field = read()
     
-    ruleset = list(it.product([0, 255], repeat=9))
+    cdef list ruleset = list(it.product([0, 255], repeat=9))
     for i, rule in enumerate(ruleset):
         ca = CellularAutomata(field, rule)
         ca.run()
         save(ca.field, f'./results/result_{i}.jpg')
 
-compare_all_rules()
+#compare_all_rules()
+decomp()
