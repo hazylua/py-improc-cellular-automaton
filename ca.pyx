@@ -83,11 +83,11 @@ cdef compare_all_rules():
 
     ret, field = read()
     
-    cdef list ruleset = list(it.product([0, 255], repeat=9))
-    for i, rule in enumerate(ruleset):
-        ca = CellularAutomata(field, rule)
-        ca.run()
-        save(ca.field, f'./results/result_{i}.jpg')
+    #cdef list ruleset = list(it.product([0, 255], repeat=9))
+    cdef tuple rule = (0, 255, 255, 0, 255, 255, 0, 255, 255)
+    ca = CellularAutomata(field, rule, )
+    ca.run()
+    save(ca.field, f'./results/result_{i}.jpg')
 
 #compare_all_rules()
 decomp()
