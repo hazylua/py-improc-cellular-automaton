@@ -5,3 +5,6 @@ __pycache__
 results/
 decomposition/
 build/
+
+# VSCode
+.vscode
