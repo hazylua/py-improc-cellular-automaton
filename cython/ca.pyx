@@ -87,7 +87,7 @@ cdef compare_all_rules():
     cdef tuple rule = (0, 255, 255, 0, 255, 255, 0, 255, 255)
     ca = CellularAutomata(field, rule, )
     ca.run()
-    save(ca.field, f'./results/result_{i}.jpg')
+    save(ca.field, f'../results/result.jpg')
 
 #compare_all_rules()
 decomp()
