@@ -4,8 +4,8 @@ import os
     
 import image_processing as improc
     
-results_path = '../results/'
-samples_path = '../samples/'
+results_path = './results/'
+samples_path = './samples/'
 
 class CellularAutomata:
     def __init__(self, field, rule):
@@ -51,8 +51,8 @@ class CellularAutomata:
     def run(self):
         self.tick()
 
-# img = improc.read_preprocess(samples_path + 'white_cat.jpg')
-# ca = CellularAutomata(img, (0, 0, 0, 0, 0, 0, 0 ,0))
+img = improc.read_preprocess(samples_path + 'white_cat.jpg')
+ca = CellularAutomata(img, (0, 0, 0, 0, 0, 0, 0 ,0))
 
-# ca.run()
-# improc.save_img(results_path, 'test.jpg', ca.field)
+ca.run()
+improc.save_img(results_path, 'test.jpg', ca.field)
