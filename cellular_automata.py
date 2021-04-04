@@ -59,7 +59,7 @@ class CellularAutomata:
     def run(self):
         self.tick()
 
-img = improc.read_preprocess(samples_path + 'white_cat.jpg')
+img = improc.read_preprocess(samples_path + 'white_cat-noise.jpg')
 ca = CellularAutomata(img, [1, 1, 1, 1, 2, 1, 2 , 2])
 
 ca.run()
