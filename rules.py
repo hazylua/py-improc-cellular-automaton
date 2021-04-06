@@ -19,9 +19,7 @@ def generate():
     while i < len(patterns):
         if i == 0 or i == (len(patterns) - 1):
             results.append(patterns[i])
-
             i += 1
-            continue
 
         else:
             results.append(patterns[i])
