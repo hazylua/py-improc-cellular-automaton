@@ -11,7 +11,6 @@ def generate():
     """ Generate all possible neighborhood configurations. """
     results = []
     patterns = list(it.product([0, 1, 2], repeat=8))
-    check = patterns
 
     # Check each pattern in the list of patterns generated to see if another pattern is a simmetry or a reflection of itself.
     # If it is, remove said simmetric/reflection matrix from the list and continue checking, else continue checking.
