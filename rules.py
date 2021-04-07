@@ -5,7 +5,44 @@ Burnside's lemma = ( 3^8 + 4*3^5 + 2*3^2 + 3^4 ) / 8 = 954 possible patterns.
 """
 
 import itertools as it
-# import numpy as np
+from math import ceil
+
+
+def rotate_90_degree_clckwise(matrix):
+    """ Get matrix rotated 90 degrees clockwise. """
+    rotated = []
+    for i in range(len(matrix[0])):
+        li = list(map(lambda x: x[i], matrix))
+        li.reverse()
+        rotated.append(li)
+
+    return rotated
+
+
+def x_simmetry(matrix):
+    """ Get reflection of matrix in the x-axis. """
+    sim = matrix
+    start = ceil(len(matrix)/2)
+    stop = len(matrix)
+    reflect = start - 1 - len(matrix) % 2
+    for i in range(start, stop):
+        sim[i] = matrix[reflect]
+        reflect -= 1
+    return sim
+
+
+def delete_in_place(matrix, index):
+    """ Helper for 'del'. """
+    #print(f'{index}: {matrix[index]}')
+    del matrix[index]
+    return matrix
+
+
+def show_rows(matrix):
+    """ Print matrix. """
+    for row in matrix:
+        print(row)
+
 
 def generate():
     """ Generate all possible neighborhood configurations. """
