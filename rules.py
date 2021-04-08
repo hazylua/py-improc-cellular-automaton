@@ -9,31 +9,7 @@ If it is, remove said simmetric/reflection matrix
 """
 
 import itertools as it
-from math import ceil
-
-
-def rotate_90_degree_clckwise(m):
-    """ Get matrix rotated 90 degrees clockwise. """
-    rotated = []
-    for i in range(len(m[0])):
-        li = list(map(lambda x: x[i], m))
-        li.reverse()
-        rotated.append(li)
-
-    return rotated
-
-
-def x_simmetry(m):
-    """ Get reflection of matrix in the x-axis. """
-    sim = list(m)
-    start = ceil(len(m)/2)
-    stop = len(m)
-    reflect = start - 1 - len(m) % 2
-    for i in range(start, stop):
-        sim[i] = m[reflect]
-        reflect -= 1
-    return sim
-
+from matrix import rotate_90_degree_clckwise, x_symmetry, y_symmetry, show_rows, get_matrix
 
 def delete_in_place(m, index):
     """ Helper for 'del'. """
@@ -41,36 +17,29 @@ def delete_in_place(m, index):
     del m[index]
     return m
 
-
-def show_rows(m):
-    """ Print matrix. """
-    for row in m:
-        print(row)
-
-
-def generate(values, size):
+def generate(v, s):
     """ Generate all possible neighborhood configurations. """
-    generated = list(it.product(values, repeat=size))
+    generated = list(it.product(v, repeat=s))
     return generated
 
-
-def get_matrix(p):
-    m = [p[0:3],
-            [p[3], ' ', p[4]],
-            p[5:8]]
-    return m
-
 if __name__ == '__main__':
-    values = [0, 1]
-    size = 8
-    patterns = generate(values, size)
-    group = [rotate_90_degree_clckwise, x_simmetry]
-    piss = get_matrix(list(patterns[1]))
+    patterns = generate([0, 1], 8)
+    group = [rotate_90_degree_clckwise, x_symmetry, y_symmetry]
 
     for f in group:
+        # flag = 0
         for pattern in patterns:
             matrix = get_matrix(list(pattern))
-            
-        print('-'*50)
-        
-    
+            action = f(matrix)
+            # if flag > 0 and flag < 10:
+            #     matrix = get_matrix(list(pattern))
+            #     action = f(matrix)
+            #     show_rows(matrix)
+            #     print("\nTo:\n")
+            #     show_rows(action)
+            #     print("\nAnd:\n")
+            #     show_rows(matrix)
+            #     print("#" * 50)
+            #     flag += 1
+            # flag += 1
+        # print("*" * 100)
