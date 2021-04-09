@@ -1,6 +1,7 @@
-from math import ceil
-import copy
+""" Matrix operations for square matrices. """
 
+from math import ceil
+# import copy
 
 def rotate_90_degree_clckwise(matrix):
     """ Get a matrix rotated 90 degrees clockwise. """
