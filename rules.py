@@ -9,37 +9,43 @@ If it is, remove said simmetric/reflection matrix
 """
 
 import itertools as it
-from matrix import rotate_90_degree_clckwise, x_symmetry, y_symmetry, show_rows, get_matrix
+from matrix import rotate_90_degree_clckwise, x_symmetry, y_symmetry, diagl_symmetry, diagr_symmetry, show_rows, get_matrix
 
-def delete_in_place(m, index):
+
+def delete_in_place(values, pos):
     """ Helper for 'del'. """
-    #print(f'{index}: {matrix[index]}')
-    del m[index]
-    return m
+    #print(f'{pos}: {values[pos]}')
+    del values[pos]
+    return values
 
-def generate(v, s):
+
+def generate(array, size):
     """ Generate all possible neighborhood configurations. """
-    generated = list(it.product(v, repeat=s))
+    generated = list(it.product(array, repeat=size))
     return generated
 
+
 if __name__ == '__main__':
+    
     patterns = generate([0, 1], 8)
-    group = [rotate_90_degree_clckwise, x_symmetry, y_symmetry]
+    group = [rotate_90_degree_clckwise, x_symmetry, y_symmetry, diagr_symmetry, diagl_symmetry]
+    
+    orbits = []
 
     for f in group:
-        # flag = 0
+        flag = 0
         for pattern in patterns:
             matrix = get_matrix(list(pattern))
             action = f(matrix)
-            # if flag > 0 and flag < 10:
-            #     matrix = get_matrix(list(pattern))
-            #     action = f(matrix)
-            #     show_rows(matrix)
-            #     print("\nTo:\n")
-            #     show_rows(action)
-            #     print("\nAnd:\n")
-            #     show_rows(matrix)
-            #     print("#" * 50)
-            #     flag += 1
-            # flag += 1
-        # print("*" * 100)
+            if flag > 0 and flag < 10:
+                matrix = get_matrix(list(pattern))
+                action = f(matrix)
+                show_rows(matrix)
+                print("\nTo:\n")
+                show_rows(action)
+                print("\nAnd:\n")
+                show_rows(matrix)
+                print("#" * 50)
+                flag += 1
+            flag += 1
+        print("*" * 100)
