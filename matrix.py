@@ -39,6 +39,25 @@ def y_symmetry(matrix):
     return sym_matrix
 
 
+def diagl_symmetry(matrix):
+    """ Get reflection of matrix in line y = -x. """
+    sym_matrix = [x[:] for x in matrix]
+    height = len(sym_matrix)
+
+    row_start = 1
+    row_stop = height
+
+    rcount = 1
+
+    for i in range(row_start, row_stop):
+        column_start = 0
+        column_stop = rcount
+        for j in range(column_start, column_stop):
+            sym_matrix[i][j] = matrix[j][i]
+        rcount += 1
+    return sym_matrix
+
+
 def show_rows(matrix):
     """ Print matrix. """
     string = [[str(e) for e in row] for row in matrix]
