@@ -4,6 +4,11 @@ from math import ceil
 # import copy
 
 
+def identity(m):
+    """ Get the matrix itself. For labeling purposes. """
+    return m
+
+
 def rotate_90_degree_clckwise(matrix):
     """ Get a matrix rotated 90 degrees clockwise. """
     rot_matrix = []
