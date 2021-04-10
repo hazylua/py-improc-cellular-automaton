@@ -3,6 +3,7 @@
 from math import ceil
 # import copy
 
+
 def rotate_90_degree_clckwise(matrix):
     """ Get a matrix rotated 90 degrees clockwise. """
     rot_matrix = []
@@ -14,6 +15,21 @@ def rotate_90_degree_clckwise(matrix):
     return rot_matrix
 
 
+def rotate_180_degree_clckwise(matrix):
+    """ Get a matrix rotated 180 degrees clockwise. """
+    rot_90 = rotate_90_degree_clckwise(matrix)
+    rot_180 = rotate_90_degree_clckwise(rot_90)
+    return rot_180
+
+
+def rotate_270_degree_clckwise(matrix):
+    """ Get a matrix rotated 270 degrees clockwise. """
+    rot_90 = rotate_90_degree_clckwise(matrix)
+    rot_180 = rotate_90_degree_clckwise(rot_90)
+    rot_270 = rotate_90_degree_clckwise(rot_180)
+    return rot_270
+
+
 def x_symmetry(matrix):
     """ Get reflection of matrix in the x-axis. """
     sym_matrix = [x[:] for x in matrix]
@@ -21,7 +37,9 @@ def x_symmetry(matrix):
     start = ceil(height/2)
     reflect = start - 1 - height % 2
     for i in range(start, height):
+        temp = matrix[i]
         sym_matrix[i] = matrix[reflect]
+        sym_matrix[reflect] = temp
         reflect -= 1
     return sym_matrix
 
@@ -34,8 +52,10 @@ def y_symmetry(matrix):
     start = ceil(width/2)
     reflect = start - 1 - width % 2
     for i in range(start, width):
+        temp = get_column(matrix, i)
         reflect_column = get_column(sym_matrix, reflect)
         sym_matrix = set_column(sym_matrix, i, reflect_column)
+        sym_matrix = set_column(sym_matrix, reflect, temp)
         reflect -= 1
     return sym_matrix
 
@@ -56,7 +76,9 @@ def diagr_symmetry(matrix):
         column_stop = width
         ccount = 1
         for j in range(column_start, column_stop):
+            temp = sym_matrix[i][j]
             sym_matrix[i][j] = matrix[i - ccount][j - ccount]
+            sym_matrix[i - ccount][j - ccount] = temp
             ccount += 1
         rcount += 1
     return sym_matrix
@@ -76,7 +98,9 @@ def diagl_symmetry(matrix):
         column_start = 0
         column_stop = rcount
         for j in range(column_start, column_stop):
+            temp = sym_matrix[i][j]
             sym_matrix[i][j] = matrix[j][i]
+            sym_matrix[j][i] = temp
         rcount += 1
     return sym_matrix
 
@@ -105,3 +129,13 @@ def set_column(m, i, v):
     for x, row in enumerate(m):
         row[i] = v[x]
     return m
+
+
+def get_pattern(matrix):
+    """ Get matrix in the form of a tuple. """
+    pattern = []
+    for row in matrix:
+        for value in row:
+            if value != ' ':
+                pattern.append(value)
+    return tuple(pattern)
