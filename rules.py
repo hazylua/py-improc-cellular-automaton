@@ -9,6 +9,7 @@ If it is, remove said simmetric/reflection matrix
 """
 
 import itertools as it
+# import csv
 from matrix import rotate_90_degree_clckwise, x_symmetry, y_symmetry, diagl_symmetry, diagr_symmetry, show_rows, get_matrix, get_pattern, rotate_180_degree_clckwise, rotate_270_degree_clckwise, identity
 
 
@@ -25,38 +26,37 @@ def generate(array, size):
     return generated
 
 
-if __name__ == '__main__':
-    patterns = generate([0, 1, 2], 8)
-    group = [('identity', identity),
-             ('90 degrees rotation', rotate_90_degree_clckwise),
-             ('180 degrees rotation', rotate_180_degree_clckwise),
-             ('270 degrees rotation', rotate_270_degree_clckwise),
-             ('X axis symmetry', x_symmetry),
-             ('Y axis symmetry', y_symmetry),
-             ('Right diagonal symmetry', diagr_symmetry),
-             ('Left diagonal symmetry', diagl_symmetry)]
-    symmetries = {}
+def get_rules(arr, s):
+    patterns = generate(arr, s)
+    group = [identity, rotate_90_degree_clckwise, rotate_180_degree_clckwise,
+             rotate_270_degree_clckwise, x_symmetry, y_symmetry, diagr_symmetry, diagl_symmetry]
 
+    symmetries = []
+
+    i = 0
     while len(patterns) > 0:
         pattern = patterns[0]
         delete_in_place(patterns, 0)
+
         matrix = get_matrix(list(pattern))
 
-        symmetries[pattern] = {}
+        symmetries.append([])
 
         for action in group:
-            act = action[0]
-            result = get_pattern(action[1](matrix))
-            symmetries[pattern][act] = result
+            act = action(matrix)
+            act_pattern = get_pattern(act)
+            symmetries[i].append(act_pattern)
 
-        for key, result in symmetries[pattern].items():
+        for result in symmetries[i]:
             j = 0
             while j < len(patterns):
                 if result == patterns[j]:
                     delete_in_place(patterns, j)
                     break
                 j += 1
+        i += 1
     
-    for key in symmetries:
-        print(key)
-    print(len(symmetries))
+    return symmetries
+
+# a = get_rules([0, 1, 2], 8)
+# print(a)
