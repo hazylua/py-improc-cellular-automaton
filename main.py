@@ -2,21 +2,22 @@
 Execute.
 """
 
+import csv
 from cellular_automata import CellularAutomata
 import image_processing as improc
-from rules import get_rules
-import csv
 
 RESULTS_PATH = "./results/"
 SAMPLES_PATH = "./samples/"
 
 
 def load_image(fpath):
+    """ Load image and preprocess. """
     im = improc.read_preprocess(SAMPLES_PATH + fpath)
     return im
 
 
 def load_rules(rpath):
+    """ Load rules from file. """
     arr = []
     with open(rpath, "r") as f:
         reader = csv.reader(f)
