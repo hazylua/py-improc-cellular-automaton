@@ -1,11 +1,7 @@
 # Set up paths for notebook
 import sys
 import os
-    
-import image_processing as improc
-    
-results_path = './results/'
-samples_path = './samples/'
+import copy
 
 class CellularAutomata:
     def __init__(self, field, rule):
@@ -25,13 +21,10 @@ class CellularAutomata:
             for x in range(1, self.maxX - 1):
                 neighbours = list(self.neighbours(x, y))
                 th = neighbours.pop()
-                # print(th, neighbours)
                 if neighbours == self.rule:
                     field2[x][y] = th
-                    # print('yes')
                     continue
                 else:
-                    #field2[x][y] 
                     continue
         return field2
 
@@ -58,9 +51,3 @@ class CellularAutomata:
 
     def run(self):
         self.tick()
-
-img = improc.read_preprocess(samples_path + 'white_cat-noise.jpg')
-ca = CellularAutomata(img, [1, 1, 1, 1, 2, 1, 2 , 2])
-
-ca.run()
-improc.save_img(results_path, 'test.jpg', ca.field)
