@@ -1,7 +1,7 @@
 # Set up paths for notebook
 import sys
 import os
-import copy
+import numpy as np
 
 class CellularAutomata:
     def __init__(self, field, rule):
@@ -16,13 +16,18 @@ class CellularAutomata:
 
     def tickAlgorithm(self):
         # deepcopy?
-        field2 = self.field
+        field2 = np.copy(self.field)
         for y in range(1, self.maxY - 1):
             for x in range(1, self.maxX - 1):
                 neighbours = list(self.neighbours(x, y))
                 th = neighbours.pop()
+                # print(neighbours, self.rule)
                 if neighbours == self.rule:
+                    # print(neighbours, self.rule)
+                    # print(field2[x][y], self.field[x][y], th)
                     field2[x][y] = th
+                    # print(field2[x][y], self.field[x][y], th)
+                    # input()
                     continue
                 else:
                     continue
@@ -38,7 +43,7 @@ class CellularAutomata:
                 if i == x and j == y:
                     pass
                 else:
-                    local += self.field[x][y]
+                    local += self.field[i][j]
                     if self.field[x][y] == self.field[i][j]:
                         yield 2
                     elif self.field[x][y] > self.field[i][j]:
