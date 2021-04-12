@@ -54,11 +54,19 @@ def image_resize(img, width=None, height=None, inter=cv.INTER_AREA):
 
 
 def read_preprocess(img_path):
+    """ Image pre-processing routine. """
+
     print('Pre-processing...')
     img = cv.imread(img_path)
+    (h, w) = img.shape[:2]
+    
+    img = image_resize(img, height=int(h/4), inter=cv.INTER_LINEAR)
+    img = add_noise(img, "salt_pepper")
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
     print('Image loaded.')
     return img
+
 
 def save_img(dir_path, file_name, img):
     """ Saves image and checks for save location. """
