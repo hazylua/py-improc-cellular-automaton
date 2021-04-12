@@ -2,6 +2,25 @@ from file_operations import check_dir, clear_dir
 
 import cv2 as cv
 import numpy as np
+def image_resize(img, width=None, height=None, inter=cv.INTER_AREA):
+    """ Resizes image keeping aspect ratio. """
+    if inter == cv.INTER_AREA:
+        print('yeyeye')
+    dim = None
+    (h, w) = img.shape[:2]
+    if width is None and height is None:
+        return img
+    if width is None:
+
+        r = height / float(h)
+        dim = (int(w * r), height)
+    else:
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    resized = cv.resize(img, dim, interpolation=inter)
+    return resized
+
 
 def read_preprocess(img_path):
     print('Pre-processing...')
