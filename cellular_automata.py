@@ -1,6 +1,7 @@
-# Set up paths for notebook
-import sys
-import os
+"""
+Set up paths for notebook.
+"""
+
 import numpy as np
 
 class CellularAutomata:
@@ -52,7 +53,7 @@ class CellularAutomata:
                         yield 1
         th = int(local/8)
         yield th
-                    
+            
 
     def run(self):
         self.tick()
