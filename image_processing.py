@@ -61,6 +61,8 @@ def read_preprocess(img_path):
     return img
 
 def save_img(dir_path, file_name, img):
+    """ Saves image and checks for save location. """
+
     print('Saving image...')
     if check_dir(dir_path, make_dir=True):
         try:
