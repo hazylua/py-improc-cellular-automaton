@@ -1,7 +1,12 @@
-from file_operations import check_dir, clear_dir
+"""
+Image processing helpers.
+"""
 
 import cv2 as cv
 import numpy as np
+from file_operations import check_dir, clear_dir
+
+
 def add_noise(img, noise):
     """ Adds noise to image. """
 
