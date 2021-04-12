@@ -2,6 +2,32 @@ from file_operations import check_dir, clear_dir
 
 import cv2 as cv
 import numpy as np
+def add_noise(img, noise):
+    """ Adds noise to image. """
+
+    if noise == "salt_pepper":
+        row, col, ch = img.shape
+        sp_ratio = 0.5
+        noise_amount = 0.004
+
+        noisy = np.copy(img)
+
+        salt_amount = np.ceil(noise_amount * img.size * sp_ratio)
+        coordinates = [np.random.randint(
+            0, i - 1, int(salt_amount)) for i in img.shape]
+        noisy[tuple(coordinates)] = 1
+
+        pepper_amount = np.ceil(noise_amount * img.size * (1. - sp_ratio))
+        coordinates = [np.random.randint(
+            0, i - 1, int(pepper_amount)) for i in img.shape]
+        noisy[tuple(coordinates)] = 0
+
+        return noisy
+
+    else:
+        return img
+
+
 def image_resize(img, width=None, height=None, inter=cv.INTER_AREA):
     """ Resizes image keeping aspect ratio. """
     if inter == cv.INTER_AREA:
