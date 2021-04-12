@@ -2,7 +2,7 @@
 Execute.
 """
 
-import csv
+import json
 from cellular_automata import CellularAutomata
 import image_processing as improc
 
@@ -20,19 +20,17 @@ def load_rules(rpath):
     """ Load rules from file. """
     arr = []
     with open(rpath, "r") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            arr.append(row)
+        arr = json.load(f)
     return arr
 
 
 if __name__ == "__main__":
     imfile = "white_cat-noise.jpg"
     img = load_image(imfile)
-    rfile = "rules.csv"
+    rfile = "rules.json"
     rules = load_rules(rfile)
 
-    pattern = list(rules[124])
+    pattern = rules[90][0]
     ca = CellularAutomata(img, pattern)
     ca.run()
     imresult = f"test.jpg"
