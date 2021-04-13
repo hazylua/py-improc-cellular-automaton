@@ -5,18 +5,21 @@ Set up paths for notebook.
 import numpy as np
 
 class CellularAutomata:
+    """ Cellular automata class. """
+    
     def __init__(self, field, rule):
         self.maxX = len(field)
         self.maxY = len(field[0])
-        self.field = field
+        self.field = np.copy(field)
         self.rule = rule
 
     def tick(self):
-        new_field = self.tickAlgorithm()
+        """ Tick. """
+        new_field = self.tick_algorithm()
         self.field = new_field
 
-    def tickAlgorithm(self):
-        # deepcopy?
+    def tick_algorithm(self):
+        """ Define tick. """
         field2 = np.copy(self.field)
         for y in range(1, self.maxY - 1):
             for x in range(1, self.maxX - 1):
@@ -34,8 +37,8 @@ class CellularAutomata:
                     continue
         return field2
 
-    # ?
     def neighbours(self, x, y):
+        """ Get neighbours on postion (x, y). """
         rows = self.maxX
         cols = self.maxY if rows else 0
         local = 0
@@ -56,4 +59,6 @@ class CellularAutomata:
             
 
     def run(self):
+        """ Run algorithm. """
+        print('Running...')
         self.tick()
