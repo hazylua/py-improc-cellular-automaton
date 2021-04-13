@@ -12,7 +12,8 @@ SAMPLES_PATH = "./samples/"
 
 def load_image(fpath):
     """ Load image and preprocess. """
-    im = improc.read_preprocess(SAMPLES_PATH + fpath)
+    im = improc.read_preprocess(
+        SAMPLES_PATH + fpath, resize=True, height_resize=0.7)
     return im
 
 
@@ -25,19 +26,21 @@ def load_rules(rpath):
 
 
 if __name__ == "__main__":
-    imfile = "white_cat-noise.jpg"
+    imfile = "sat.jpg"
     img = load_image(imfile)
+    improc.save_img(SAMPLES_PATH, "sat-salted.jpg", img)
     rfile = "rules.json"
     rules = load_rules(rfile)
 
-    pattern = rules[90][0]
+    pattern = rules[120][0]
     ca = CellularAutomata(img, pattern)
-    ca.run()
+    for _ in range(0, 20):
+        ca.run()
     imresult = f"test.jpg"
     improc.save_img(RESULTS_PATH, imresult, ca.field)
 
     # for i, rule in enumerate(rules):
-    #     pattern = list(rule[0])
+    #     pattern = rule[0]
     #     ca = CellularAutomata(img, pattern)
     #     for _ in range(0, 10):
     #         ca.run()
