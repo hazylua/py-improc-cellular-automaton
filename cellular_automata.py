@@ -6,7 +6,7 @@ import numpy as np
 
 class CellularAutomata:
     """ Cellular automata class. """
-    
+
     def __init__(self, field, rule):
         self.maxX = len(field)
         self.maxY = len(field[0])
@@ -15,18 +15,20 @@ class CellularAutomata:
 
     def tick(self):
         """ Tick. """
+
         new_field = self.tick_algorithm()
-        self.field = new_field
+        self.field = np.copy(new_field)
 
     def tick_algorithm(self):
         """ Define tick. """
+
         field2 = np.copy(self.field)
-        for y in range(1, self.maxY - 1):
-            for x in range(1, self.maxX - 1):
-                neighbours = list(self.neighbours(x, y))
-                th = neighbours.pop()
-                # print(neighbours, self.rule)
-                if neighbours == self.rule:
+        x, y = np.meshgrid(np.arange(field2.shape[0]),
+                            np.arange(field2.shape[1]), indexing='ij')
+        update = np.frompyfunc(self.update_pixel, 3, 1)
+        field2 = update(field2, x, y)
+
+        return field2
                     # print(neighbours, self.rule)
                     # print(field2[x][y], self.field[x][y], th)
                     field2[x][y] = th
