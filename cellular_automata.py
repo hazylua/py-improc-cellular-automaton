@@ -29,36 +29,50 @@ class CellularAutomata:
         field2 = update(field2, x, y)
 
         return field2
-                    # print(neighbours, self.rule)
-                    # print(field2[x][y], self.field[x][y], th)
-                    field2[x][y] = th
-                    # print(field2[x][y], self.field[x][y], th)
-                    # input()
-                    continue
-                else:
-                    continue
-        return field2
+
+    def update_pixel(self, p, x, y):
+        """ Update function. """
+
+        if x == 0 or y == 0 or x == self.maxX or y == self.maxY:
+            return p
+        else:
+            neighbours = self.neighbours(x, y)
+
+            if neighbours == self.rule:
+                neighbours_average = self.local_average(x, y)
+                return neighbours_average
+            else:
+                return p
 
     def neighbours(self, x, y):
         """ Get neighbours on postion (x, y). """
-        rows = self.maxX
-        cols = self.maxY if rows else 0
-        local = 0
-        for i in range(max(0, x - 1), min(rows, x + 2)):
-            for j in range(max(0, y - 1), min(cols, y + 2)):
-                if i == x and j == y:
-                    pass
-                else:
-                    local += self.field[i][j]
-                    if self.field[x][y] == self.field[i][j]:
-                        yield 2
-                    elif self.field[x][y] > self.field[i][j]:
-                        yield 0
-                    else:
-                        yield 1
-        th = int(local/8)
-        yield th
-            
+
+        width = self.maxX
+        height = self.maxY
+        neighbours = [self.local_threshold(self.field[x2][y2], self.field[x][y])
+                      for x2 in range(max(0,  x-1), min(width, x+2))
+                      for y2 in range(max(0, y-1), min(height, y+2)) if (x2, y2) != (x, y)]
+        return neighbours
+
+    def local_average(self, x, y):
+        """ Get local average of neighbours. """
+
+        width = self.maxX
+        height = self.maxY
+        neighbours = [self.field[x2][y2] for x2 in range(max(0, x-1), min(width, x+2))
+                      for y2 in range(max(0, y-1), min(height, y+2)) if (x2, y2) != (x, y)]
+        local = int(sum(neighbours) / len(neighbours))
+        return local
+
+    def local_threshold(self, value, compare):
+        """ Threshold neighbours based on central cell. """
+
+        if value == compare:
+            return 2
+        elif value < compare:
+            return 0
+        else:
+            return 1
 
     def run(self):
         """ Run algorithm. """
