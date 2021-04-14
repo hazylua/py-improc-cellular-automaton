@@ -1,43 +1,37 @@
 """
 Image processing helpers.
 """
-
+import random
 import cv2 as cv
 import numpy as np
-from file_operations import check_dir, clear_dir
+from file_operations import check_dir
 
 
-def add_noise(img, noise):
+def add_noise(image, noise):
     """ Adds noise to image. """
 
     if noise == "salt_pepper":
-        row, col, ch = img.shape
-        sp_ratio = 0.5
-        noise_amount = 0.004
-
-        noisy = np.copy(img)
-
-        salt_amount = np.ceil(noise_amount * img.size * sp_ratio)
-        coordinates = [np.random.randint(
-            0, i - 1, int(salt_amount)) for i in img.shape]
-        noisy[tuple(coordinates)] = 1
-
-        pepper_amount = np.ceil(noise_amount * img.size * (1. - sp_ratio))
-        coordinates = [np.random.randint(
-            0, i - 1, int(pepper_amount)) for i in img.shape]
-        noisy[tuple(coordinates)] = 0
-
-        return noisy
+        prob = 0.005
+        output = np.zeros(image.shape,np.uint8)
+        thres = 1 - prob 
+        for i in range(image.shape[0]):
+            for j in range(image.shape[1]):
+                rdn = random.random()
+                if rdn < prob:
+                    output[i][j] = 0
+                elif rdn > thres:
+                    output[i][j] = 255
+                else:
+                    output[i][j] = image[i][j]
+        return output
 
     else:
-        return img
+        return image
 
 
 def image_resize(img, width=None, height=None, inter=cv.INTER_AREA):
     """ Resizes image keeping aspect ratio. """
     
-    if inter == cv.INTER_AREA:
-        print('yeyeye')
     dim = None
     (h, w) = img.shape[:2]
     if width is None and height is None:
