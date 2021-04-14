@@ -11,3 +11,5 @@ References used while writing.
     - Used in `image_processing.py` in `add_noise()`.
   - Resizing image while keeping aspect ratio: <https://stackoverflow.com/a/44659589>
     - Used in `image_processing.py` in `resize()`.
+  - Getting neighbours in a 2D matrix: <https://stackoverflow.com/questions/1620940/determining-neighbours-of-cell-two-dimensional-list/34362272>
+    - Used in `cellular_automata.py` in  `neighbours()`.
