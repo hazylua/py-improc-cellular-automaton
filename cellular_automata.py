@@ -76,5 +76,5 @@ class CellularAutomata:
 
     def run(self):
         """ Run algorithm. """
-        print('Running...')
+
         self.tick()
