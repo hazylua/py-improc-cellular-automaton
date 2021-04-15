@@ -3,6 +3,6 @@ from Cython.Build import cythonize
 
 setup(
     name="Cellular Automata",
-    ext_modules = cythonize("ca.pyx"),
+    ext_modules = cythonize("cellular_automata.pyx"),
     zip_safe=False
 )
