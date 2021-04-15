@@ -47,8 +47,7 @@ def image_resize(img, width=None, height=None, inter=cv.INTER_AREA):
     resized = cv.resize(img, dim, interpolation=inter)
     return resized
 
-
-def read_preprocess(img_path, resize=False, height_resize=None, width_resize=None):
+def read_preprocess(img_path, resize=False, height_resize=None, width_resize=None, noise=False):
     """ Image pre-processing routine. """
 
     print('Pre-processing...')
@@ -63,7 +62,11 @@ def read_preprocess(img_path, resize=False, height_resize=None, width_resize=Non
             w = int(img.shape[0] * width_resize)
         img = image_resize(img, height=h, width=w)
 
-    img = add_noise(img, "salt_pepper")
+    # Ex.: "salt_pepper"
+    if(noise):
+        print(noise)
+        img = add_noise(img, noise)
+        
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
     print('Image loaded.')
