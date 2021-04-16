@@ -68,3 +68,15 @@ def apply_ca(field):
     improc.save_img(RESULTS_PATH, "result.jpg", ca.field)
 
 
+if __name__ == "__main__":
+    imfile = "sat.jpg"
+    img = load_compare(SAMPLES_PATH + imfile)
+    noisy = load_noise(SAMPLES_PATH + imfile)
+
+    improc.save_img(SAMPLES_PATH, "input.jpg", img)
+    improc.save_img(SAMPLES_PATH, "input-noisy.jpg", noisy)
+
+    apply_ca(noisy)
+
+    err = compare_rmse(SAMPLES_PATH + "input.jpg", RESULTS_PATH + "result.jpg")
+    print(err)
