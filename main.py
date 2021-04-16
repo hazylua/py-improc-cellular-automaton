@@ -30,9 +30,14 @@ def load_noise(fpath):
 def load_rules(rpath):
     """ Load rules from file. """
     arr = []
+    match_list = {}
     with open(rpath, "r") as f:
         arr = json.load(f)
-    return arr
+        for ruleset in arr:
+            match_list[f'{ruleset[0]}'] = ruleset
+    return match_list
+
+
 
 
 if __name__ == "__main__":
