@@ -37,10 +37,12 @@ class CellularAutomata:
             return p
         else:
             neighbours = self.neighbours(x, y)
+            fpattern = f'{neighbours}'
 
-            if neighbours == self.rule:
+            if self.rule.get(fpattern):
                 neighbours_average = self.local_average(x, y)
                 return neighbours_average
+                # return 255
             else:
                 return p
 
