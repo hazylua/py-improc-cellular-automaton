@@ -2,12 +2,15 @@
 Execute.
 """
 
+import sys
 import json
+from sklearn.metrics import mean_squared_error
 from cellular_automata import CellularAutomata
 import image_processing as improc
 
 RESULTS_PATH = "./results/"
 SAMPLES_PATH = "./samples/"
+STATES_PATH = "./states/"
 resize = (True, 0.3)
 
 
