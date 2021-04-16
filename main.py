@@ -38,12 +38,15 @@ def load_rules(rpath):
     return match_list
 
 
+def compare_rmse(im_compare, im_predict):
+    """ Get RMSE of two images. """
+
+    im = load_compare(im_compare)
+    im_predic = load_compare(im_predict)
+    rmse = mean_squared_error(im, im_predic)
+    return rmse
 
 
-if __name__ == "__main__":
-    imfile = "sat.jpg"
-    img = load_image(imfile)
-    improc.save_img(SAMPLES_PATH, "sat-salted.jpg", img)
     rfile = "rules.json"
     rules = load_rules(rfile)
 
