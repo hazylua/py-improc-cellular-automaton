@@ -47,14 +47,24 @@ def compare_rmse(im_compare, im_predict):
     return rmse
 
 
+def apply_ca(field):
     rfile = "rules.json"
     rules = load_rules(rfile)
 
-    for i, rule in enumerate(rules):
-        pattern = rule[0]
-        ca = CellularAutomata(img, pattern)
-        for j in range(0, 20):
-            print(f"{i}:{j} - RULE: {pattern} - Running...")
-            ca.run()
-        imresult = f"result_{i}.jpg"
-        improc.save_img(RESULTS_PATH, imresult, ca.field)
+    gens = 100
+    ca = CellularAutomata(field, rules)
+
+    sys.stdout.write("[%s]" % (" " * gens))
+    sys.stdout.flush()
+    sys.stdout.write("\b" * (gens+1))  # return to start of line, after '['
+
+    for i in range(gens):
+
+        ca.run()
+        sys.stdout.write("-")
+        sys.stdout.flush()
+
+    sys.stdout.write("]\n")  # this ends the progress bar
+    improc.save_img(RESULTS_PATH, "result.jpg", ca.field)
+
+
