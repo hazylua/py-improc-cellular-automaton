@@ -8,12 +8,22 @@ import image_processing as improc
 
 RESULTS_PATH = "./results/"
 SAMPLES_PATH = "./samples/"
+resize = (True, 0.3)
 
 
-def load_image(fpath):
-    """ Load image and preprocess. """
+def load_compare(fpath):
+    """ Load image without noise. """
+
     im = improc.read_preprocess(
-        SAMPLES_PATH + fpath, resize=True, height_resize=0.2)
+        fpath, resize=resize[0], height_resize=resize[1], noise=False)
+    return im
+
+
+def load_noise(fpath):
+    """ Load image with noise. """
+
+    im = improc.read_preprocess(
+        fpath, resize=resize[0], height_resize=resize[1], noise="salt_pepper")
     return im
 
 
