@@ -61,14 +61,25 @@ def apply_ca(field):
     sys.stdout.flush()
     sys.stdout.write("\b" * (gens+1))  # return to start of line, after '['
 
-    for i in range(gens):
+def find_best(chunk):
+    """ Mapper. """
 
-        ca.run()
-        sys.stdout.write("-")
-        sys.stdout.flush()
+    gens = 10
 
-    sys.stdout.write("]\n")  # this ends the progress bar
-    improc.save_img(RESULTS_PATH, "result.jpg", ca.field)
+    best_err = [None, None]
+    for r in chunk.keys():
+        ca = CellularAutomata(noisy, {r: chunk[r][0]})
+        for _ in range(gens):
+            ca.run()
+
+        rule_err = compare_rmse(img, ca.field)
+
+        if best_err[0] is None:
+            best_err = [rule_err, r]
+        elif best_err[0] > rule_err:
+            best_err = [rule_err, r]
+
+    return best_err
 
 
 if __name__ == "__main__":
