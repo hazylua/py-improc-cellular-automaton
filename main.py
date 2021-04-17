@@ -2,8 +2,10 @@
 Execute.
 """
 
-import sys
 import json
+from functools import reduce
+from itertools import islice
+from multiprocessing import Pool
 from sklearn.metrics import mean_squared_error
 from cellular_automata import CellularAutomata
 import image_processing as improc
@@ -13,6 +15,9 @@ SAMPLES_PATH = "./samples/"
 STATES_PATH = "./states/"
 resize = (True, 0.3)
 
+imfile = "sat.jpg"
+img = load_compare(SAMPLES_PATH + imfile)
+noisy = load_noise(SAMPLES_PATH + imfile)
 
 def load_compare(fpath):
     """ Load image without noise. """
@@ -91,7 +96,7 @@ if __name__ == "__main__":
     rules = load_rules(rfile)
     num_splits = 4
 
-    best_rules = {}        
+    best_rules = {}
     while len(best_rules) < 100:
         chunks = list(split_rules(rules))
         mapper = find_best
@@ -105,3 +110,16 @@ if __name__ == "__main__":
 
         best_rules[key] = rules[key]
         rules.pop(key, None)
+
+# if i != 0:
+#             for b in best.keys():
+#                 nob = best
+#                 del nob[b]
+#                 ca = CellularAutomata(noisy, nob)
+#                 for _ in range(10):
+#                     ca.run()
+#                 ca_rmse = compare_rmse(img, ca.field)
+#                 ca_rmse = compare_rmse(img, ca.field)
+#                 if
+#         else:
+#             ca_rmse = best_rule[0]
