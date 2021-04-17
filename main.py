@@ -48,6 +48,12 @@ def compare_rmse(im_compare, im_predict):
     im_predic = load_compare(im_predict)
     rmse = mean_squared_error(im, im_predic)
     return rmse
+def split_rules(data, size=4):
+    """ Split dictionary in parts. """
+
+    it = iter(data)
+    for x in range(0, len(data), size):
+        yield {k: data[k] for k in islice(it, size)}
 
 
 def get_best(val1, val2):
