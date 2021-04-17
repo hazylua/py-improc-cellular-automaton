@@ -50,16 +50,14 @@ def compare_rmse(im_compare, im_predict):
     return rmse
 
 
-def apply_ca(field):
-    rfile = "rules.json"
-    rules = load_rules(rfile)
+def get_best(val1, val2):
+    """ Reducer. """
 
-    gens = 100
-    ca = CellularAutomata(field, rules)
+    if val1[0] > val2[0]:
+        return val2
+    else:
+        return val1
 
-    sys.stdout.write("[%s]" % (" " * gens))
-    sys.stdout.flush()
-    sys.stdout.write("\b" * (gens+1))  # return to start of line, after '['
 
 def find_best(chunk):
     """ Mapper. """
