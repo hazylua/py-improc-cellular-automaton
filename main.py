@@ -72,14 +72,21 @@ def apply_ca(field):
 
 
 if __name__ == "__main__":
-    imfile = "sat.jpg"
-    img = load_compare(SAMPLES_PATH + imfile)
-    noisy = load_noise(SAMPLES_PATH + imfile)
+    rfile = "rules.json"
+    rules = load_rules(rfile)
+    num_splits = 4
 
-    improc.save_img(SAMPLES_PATH, "input.jpg", img)
-    improc.save_img(SAMPLES_PATH, "input-noisy.jpg", noisy)
+    best_rules = {}        
+    while len(best_rules) < 100:
+        chunks = list(split_rules(rules))
+        mapper = find_best
+        reducer = get_best
 
-    apply_ca(noisy)
+        with Pool(4) as pool:
+            mapped = pool.map(mapper, chunks)
 
-    err = compare_rmse(SAMPLES_PATH + "input.jpg", RESULTS_PATH + "result.jpg")
-    print(err)
+        best_rule = reduce(reducer, mapped)
+        key = best_rule[1]
+
+        best_rules[key] = rules[key]
+        rules.pop(key, None)
