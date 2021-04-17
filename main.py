@@ -43,11 +43,11 @@ def load_rules(rpath):
 
 def compare_rmse(im_compare, im_predict):
     """ Get RMSE of two images. """
-
-    im = load_compare(im_compare)
-    im_predic = load_compare(im_predict)
-    rmse = mean_squared_error(im, im_predic)
+    rmse = mean_squared_error(im_compare, im_predict)
+    print(rmse)
     return rmse
+
+
 def split_rules(data, size=4):
     """ Split dictionary in parts. """
 
