@@ -1,4 +1,16 @@
 {
-    "states": [0, 1, 2],
-    "neighbourhood_size": 8
+  "states": [0, 1, 2],
+  "neighbourhood_size": 8,
+  "paths": {
+    "results": "./results/",
+    "samples": {
+      "clean": "./samples/clean/",
+      "processed": "./samples/processed/",
+      "noisy": "./samples/noisy/"
+    }
+  },
+  "process": {
+    "resize": true,
+    "resize_ratio": 0.3
+  }
 }
