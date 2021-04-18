@@ -1,7 +1,3 @@
-"""
-Set up paths for notebook.
-"""
-
 import numpy as np
 
 class CellularAutomata:
@@ -23,8 +19,10 @@ class CellularAutomata:
         """ Define tick. """
 
         field2 = np.copy(self.field)
+        
         x, y = np.meshgrid(np.arange(field2.shape[0]),
                             np.arange(field2.shape[1]), indexing='ij')
+        
         update = np.frompyfunc(self.update_pixel, 3, 1)
         field2 = update(field2, x, y)
 
@@ -76,7 +74,7 @@ class CellularAutomata:
         else:
             return 1
 
-    def run(self):
+    def evolve(self):
         """ Run algorithm. """
 
         self.tick()

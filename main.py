@@ -1,6 +1,4 @@
-"""
-Execute.
-"""
+""" Run cellular automata. """
 
 import json
 from functools import reduce
@@ -8,35 +6,13 @@ from itertools import islice
 from multiprocessing import Pool
 from sklearn.metrics import mean_squared_error
 from cellular_automata import CellularAutomata
-import image_processing as improc
 
-RESULTS_PATH = "./results/"
-SAMPLES_PATH = "./samples/"
-STATES_PATH = "./states/"
-resize = (True, 0.3)
-
-imfile = "sat.jpg"
-img = load_compare(SAMPLES_PATH + imfile)
-noisy = load_noise(SAMPLES_PATH + imfile)
-
-def load_compare(fpath):
-    """ Load image without noise. """
-
-    im = improc.read_preprocess(
-        fpath, resize=resize[0], height_resize=resize[1], noise=False)
-    return im
-
-
-def load_noise(fpath):
-    """ Load image with noise. """
-
-    im = improc.read_preprocess(
-        fpath, resize=resize[0], height_resize=resize[1], noise="salt_pepper")
-    return im
-
+img = None
+noisy = None
 
 def load_rules(rpath):
     """ Load rules from file. """
+    
     arr = []
     match_list = {}
     with open(rpath, "r") as f:
@@ -48,6 +24,7 @@ def load_rules(rpath):
 
 def compare_rmse(im_compare, im_predict):
     """ Get RMSE of two images. """
+    
     rmse = mean_squared_error(im_compare, im_predict)
     print(rmse)
     return rmse
@@ -79,7 +56,7 @@ def find_best(chunk):
     for r in chunk.keys():
         ca = CellularAutomata(noisy, {r: chunk[r][0]})
         for _ in range(gens):
-            ca.run()
+            ca.evolve()
 
         rule_err = compare_rmse(img, ca.field)
 
