@@ -88,15 +88,16 @@ if __name__ == "__main__":
         best_rules[key] = rules[key]
         rules.pop(key, None)
 
-# if i != 0:
-#             for b in best.keys():
-#                 nob = best
-#                 del nob[b]
-#                 ca = CellularAutomata(noisy, nob)
-#                 for _ in range(10):
-#                     ca.run()
-#                 ca_rmse = compare_rmse(img, ca.field)
-#                 ca_rmse = compare_rmse(img, ca.field)
-#                 if
-#         else:
-#             ca_rmse = best_rule[0]
+        i = 0
+        if i != 0:
+            for best in best_rules.keys():
+                no_best = best_rules
+                del no_best[best]
+                
+                ca = CellularAutomata(noisy, no_best)
+                for _ in range(10):
+                    ca.evolve()
+                ca_rmse = compare_rmse(img, ca.field)
+                ca_rmse = compare_rmse(img, ca.field)
+            else:
+                ca_rmse = best_rule[0]
