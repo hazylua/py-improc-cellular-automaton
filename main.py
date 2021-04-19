@@ -69,9 +69,15 @@ def find_best(chunk):
 
 
 if __name__ == "__main__":
-    rfile = "rules.json"
-    rules = load_rules(rfile)
-    num_splits = 4
+    rules = load_rules("rules.json")
+    settings = load_config("settings.json")
+    num_splits = settings["num_splits"]
+    compare_path = settings["paths"]["samples"]["processed"]
+    noisy_path = settings["paths"]["samples"]["noisy"]
+
+    fpath = "satellite_1.png"
+    img = imread(compare_path + fpath)
+    noisy = imread(noisy_path + fpath)
 
     best_rules = {}
     while len(best_rules) < 100:
