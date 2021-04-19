@@ -47,7 +47,7 @@ def get_best(val1, val2):
         return val1
 
 
-def find_best(chunk):
+def find_best(chunk, img, noisy):
     """ Mapper. """
 
     gens = 10
