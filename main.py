@@ -85,7 +85,12 @@ if __name__ == "__main__":
         best_rule = reduce(reducer, mapped)
         key = best_rule[1]
 
+        # Temporary.
+        temp = best_rules
+        
+        # Add rule to best rules.
         best_rules[key] = rules[key]
+        # Remove from rules.
         rules.pop(key, None)
 
         i = 0
