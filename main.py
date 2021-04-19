@@ -79,15 +79,23 @@ if __name__ == "__main__":
         mapper = find_best
         reducer = get_best
 
+        star_chunks = []
+
+        for chunk in chunks:
+            temp = []
+            for key in chunk.keys():
+                temp.append([{key: chunk[key]}, img, noisy])
+            temp.append(temp)
+
         with Pool(4) as pool:
-            mapped = pool.map(mapper, chunks)
+            mapped = pool.map(mapper, star_chunks)
 
         best_rule = reduce(reducer, mapped)
         key = best_rule[1]
 
         # Temporary.
         temp = best_rules
-        
+
         # Add rule to best rules.
         best_rules[key] = rules[key]
         # Remove from rules.
@@ -98,7 +106,7 @@ if __name__ == "__main__":
             for best in best_rules.keys():
                 no_best = best_rules
                 del no_best[best]
-                
+
                 ca = CellularAutomata(noisy, no_best)
                 for _ in range(10):
                     ca.evolve()
