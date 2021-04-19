@@ -1,3 +1,5 @@
+""" Generate images to process and compare. """
+
 import json
 from os import listdir
 import image_processing as improc
@@ -16,7 +18,7 @@ def save_configured(config):
         img_configured = improc.read_preprocess(
             clean_path + img_file, resize=resize, height_resize=resize_ratio)
         improc.save_img(
-            processed_path, f"processed_{img_file}", img_configured)
+            processed_path, f"{img_file}", img_configured)
 
 
 def save_noisy(config):
@@ -27,7 +29,7 @@ def save_noisy(config):
     for img_file in processed_imgs:
         img_noisy = improc.read_preprocess(
             processed_path + img_file, noise="salt_pepper")
-        improc.save_img(noisy_path, f"noisy_{img_file}", img_noisy)
+        improc.save_img(noisy_path, f"{img_file}", img_noisy)
 
 
 def load_config(path):
@@ -38,6 +40,6 @@ def load_config(path):
 
 
 if __name__ == '__main__':
-    configs = load_config("../settings.json")
+    configs = load_config("./settings.json")
     save_configured(configs)
     save_noisy(configs)
