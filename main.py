@@ -1,18 +1,19 @@
 """ Run cellular automata. """
 
 import json
+from cv2 import imread
+from functools import partial
+from process_images import load_config
 from functools import reduce
 from itertools import islice
-from multiprocessing import Pool
+from multiprocessing import Pool, Lock
 from sklearn.metrics import mean_squared_error
 from cellular_automata import CellularAutomata
 
-img = None
-noisy = None
 
 def load_rules(rpath):
     """ Load rules from file. """
-    
+
     arr = []
     match_list = {}
     with open(rpath, "r") as f:
@@ -24,7 +25,7 @@ def load_rules(rpath):
 
 def compare_rmse(im_compare, im_predict):
     """ Get RMSE of two images. """
-    
+
     rmse = mean_squared_error(im_compare, im_predict)
     print(rmse)
     return rmse
