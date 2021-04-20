@@ -72,7 +72,7 @@ def find_best(chunk, img, noisy):
 if __name__ == "__main__":
     rules = load_rules("rules.json")
     settings = load_config("settings.json")
-    split_size= settings["split_size"]
+    split_size = settings["split_size"]
     compare_path = settings["paths"]["samples"]["processed"]
     noisy_path = settings["paths"]["samples"]["noisy"]
 
@@ -83,20 +83,21 @@ if __name__ == "__main__":
 
     best_rules = {}
     while len(best_rules) < 100:
-        chunks = list(split_rules(rules))
+        splits = list(chunks(rules, split_size))
+
         mapper = find_best
         reducer = get_best
 
-        star_chunks = []
+        chunk_args = []
 
-        for chunk in chunks:
-            temp = []
-            for key in chunk.keys():
-                temp.append([{key: chunk[key]}, img, noisy])
-            temp.append(temp)
+        for split in splits:
+            #temp = []
+            for key in split.keys():
+                chunk_args.append(({key: split[key]}, img, noisy))
+            # chunk_args.append(temp)
 
         with Pool(4) as pool:
-            mapped = pool.map(mapper, star_chunks)
+            mapped = pool.starmap(mapper, chunk_args)
 
         best_rule = reduce(reducer, mapped)
         key = best_rule[1]
