@@ -48,24 +48,29 @@ def get_best(val1, val2):
         return val1
 
 
-def find_best(chunk, img, noisy):
+def find_best(chunk, img_compare, img_noisy):
     """ Mapper. """
+    
+    print("Starting.")
+    compare = np.copy(img_compare)
+    field = np.copy(img_noisy)
 
     gens = 10
 
     best_err = [None, None]
     for r in chunk.keys():
-        ca = CellularAutomata(noisy, {r: chunk[r][0]})
+        ca = CellularAutomata(field, {r: chunk[r][0]})
         for _ in range(gens):
             ca.evolve()
 
-        rule_err = compare_rmse(img, ca.field)
+        rule_err = compare_rmse(compare, ca.field)
 
         if best_err[0] is None:
             best_err = [rule_err, r]
         elif best_err[0] > rule_err:
             best_err = [rule_err, r]
 
+    print(f'Found best: {best_err}')
     return best_err
 
 
