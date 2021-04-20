@@ -1,7 +1,7 @@
 """ Run cellular automata. """
 
 import json
-from cv2 import imread
+import cv2 as cv
 from functools import partial
 from process_images import load_config
 from functools import reduce
@@ -9,6 +9,7 @@ from itertools import islice
 from multiprocessing import Pool, Lock
 from sklearn.metrics import mean_squared_error
 from cellular_automata import CellularAutomata
+import numpy as np
 
 
 def load_rules(rpath):
