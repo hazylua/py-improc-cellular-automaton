@@ -76,9 +76,10 @@ if __name__ == "__main__":
     compare_path = settings["paths"]["samples"]["processed"]
     noisy_path = settings["paths"]["samples"]["noisy"]
 
-    fpath = "satellite_1.png"
-    img = imread(compare_path + fpath)
-    noisy = imread(noisy_path + fpath)
+    # Load as grayscale.
+    fpath = "satellite_2.jpg"
+    img = cv.imread(compare_path + fpath, cv.IMREAD_GRAYSCALE)
+    noisy = cv.imread(noisy_path + fpath, cv.IMREAD_GRAYSCALE)
 
     best_rules = {}
     while len(best_rules) < 100:
