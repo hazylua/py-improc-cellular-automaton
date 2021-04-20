@@ -72,7 +72,7 @@ def find_best(chunk, img, noisy):
 if __name__ == "__main__":
     rules = load_rules("rules.json")
     settings = load_config("settings.json")
-    num_splits = settings["num_splits"]
+    split_size= settings["split_size"]
     compare_path = settings["paths"]["samples"]["processed"]
     noisy_path = settings["paths"]["samples"]["noisy"]
 
