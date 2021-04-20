@@ -31,12 +31,12 @@ def compare_rmse(im_compare, im_predict):
     return rmse
 
 
-def split_rules(data, size=4):
-    """ Split dictionary in parts. """
-
+def chunks(data, SIZE=10000):
+    """ Split dict into chunks. """
+    
     it = iter(data)
-    for x in range(0, len(data), size):
-        yield {k: data[k] for k in islice(it, size)}
+    for _ in range(0, len(data), SIZE):
+        yield {k: data[k] for k in islice(it, SIZE)}
 
 
 def get_best(val1, val2):
