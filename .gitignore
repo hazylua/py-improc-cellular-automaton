@@ -1,10 +1,9 @@
+# VSCode
+.vscode
+
 # Python
 __pycache__
+.spyproject
 
 # Results
 results/
-decomposition/
-build/
-
-# VSCode
-.vscode
