@@ -13,3 +13,6 @@ References used while writing.
     - Used in `image_processing.py` in `resize()`.
   - Getting neighbours in a 2D matrix: <https://stackoverflow.com/questions/1620940/determining-neighbours-of-cell-two-dimensional-list/34362272>
     - Used in `cellular_automata.py` in  `neighbours()`.
+
+- Cellular Automata
+  - Python model: <https://gitlab.com/DamKoVosh/cellular_automaton>
