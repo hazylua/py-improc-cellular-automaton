@@ -1,15 +1,16 @@
 """ Run cellular automata. """
 
 import json
-import cv2 as cv
-from functools import partial
-from process_images import load_config
-from functools import reduce
+from typing import Sequence
 from itertools import islice
-from multiprocessing import Pool, Lock
-from sklearn.metrics import mean_squared_error
-from cellular_automata import CellularAutomata
+
+import cv2 as cv
 import numpy as np
+
+from sklearn.metrics import mean_squared_error
+
+from cellular_automaton import CellularAutomaton, MooreNeighbourhood, EdgeRule
+from process_images import load_config
 
 
 def load_rules(rpath):
@@ -32,12 +33,12 @@ def compare_rmse(im_compare, im_predict):
     return rmse
 
 
-def chunks(data, SIZE=10000):
+def chunks(data, size=10000):
     """ Split dict into chunks. """
-    
+
     it = iter(data)
-    for _ in range(0, len(data), SIZE):
-        yield {k: data[k] for k in islice(it, SIZE)}
+    for _ in range(0, len(data), size):
+        yield {k: data[k] for k in islice(it, size)}
 
 
 def get_best(val1, val2):
@@ -51,7 +52,7 @@ def get_best(val1, val2):
 
 def find_best(chunk, img_compare, img_noisy):
     """ Mapper. """
-    
+
     print("Starting.")
     compare = np.copy(img_compare)
     field = np.copy(img_noisy)
@@ -75,6 +76,51 @@ def find_best(chunk, img_compare, img_noisy):
     return best_err
 
 
+class ImageCA(CellularAutomaton):
+    """ Use Cellular Automaton with grayscale image pixel values as initial state. """
+
+    def __init__(self, dimension, image, ruleset):
+        super().__init__(dimension=dimension, image=image, ruleset=ruleset,
+                         neighbourhood=MooreNeighbourhood(EdgeRule.IGNORE_EDGE_CELLS))
+
+    def init_cell_state(self, cell_coordinate: Sequence) -> Sequence:  # pragma: no cover
+        x, y = cell_coordinate
+        init = self._image[x][y]
+        return [init]
+
+    def evolve_rule(self, last_cell_state, neighbours_last_states):
+        """
+        Change cell state if neighbours match a rule in ruleset.
+        New state will the average of neighbour cells.
+        """
+
+        new_cell_state = last_cell_state
+        if neighbours_last_states == []:
+            return new_cell_state
+        thresholded = self.__local_threshold(
+            neighbours_last_states, last_cell_state)
+        hashed = f'{thresholded}'
+        if self.ruleset.get(hashed):
+            new_cell_state = self.__local_average(neighbours_last_states)
+        print(thresholded)
+        input()
+        return new_cell_state
+
+    @staticmethod
+    def __local_average(neighbours):
+        """ Get local average of neighbours. """
+
+        values = list(map(sum, neighbours))
+        local = int(sum(values) / len(values))
+        return local
+
+    @staticmethod
+    def __local_threshold(neighbours, c):
+        """ Get threhsolded neighbours based on central cell. """
+
+        return [[0] if n > c else [1] if n == c else [2] for n in neighbours]
+
+
 if __name__ == "__main__":
     rules = load_rules("rules.json")
     settings = load_config("settings.json")
@@ -82,50 +128,16 @@ if __name__ == "__main__":
     compare_path = settings["paths"]["samples"]["processed"]
     noisy_path = settings["paths"]["samples"]["noisy"]
 
-    # Load as grayscale.
+    # Load as grayscale image.
     fpath = "satellite_2.jpg"
     img = cv.imread(compare_path + fpath, cv.IMREAD_GRAYSCALE)
     noisy = cv.imread(noisy_path + fpath, cv.IMREAD_GRAYSCALE)
 
-    best_rules = {}
-    while len(best_rules) < 100:
-        splits = list(chunks(rules, split_size))
+    use = []
+    for key in rules.keys():
+        use.append({key: rules[key]})
 
-        mapper = find_best
-        reducer = get_best
-
-        chunk_args = []
-
-        for split in splits:
-            #temp = []
-            for key in split.keys():
-                chunk_args.append(({key: split[key]}, img, noisy))
-            # chunk_args.append(temp)
-
-        with Pool(4) as pool:
-            mapped = pool.starmap(mapper, chunk_args)
-
-        best_rule = reduce(reducer, mapped)
-        key = best_rule[1]
-
-        # Temporary.
-        temp = best_rules
-
-        # Add rule to best rules.
-        best_rules[key] = rules[key]
-        # Remove from rules.
-        rules.pop(key, None)
-
-        i = 0
-        if i != 0:
-            for best in best_rules.keys():
-                no_best = best_rules
-                del no_best[best]
-
-                ca = CellularAutomata(noisy, no_best)
-                for _ in range(10):
-                    ca.evolve()
-                ca_rmse = compare_rmse(img, ca.field)
-                ca_rmse = compare_rmse(img, ca.field)
-            else:
-                ca_rmse = best_rule[0]
+    w = noisy.shape[0]
+    h = noisy.shape[1]
+    ca = ImageCA(dimension=[w, h], image=noisy.tolist(), ruleset=use[0])
+    ca.evolve()
