@@ -12,15 +12,21 @@ CELL = recordclass.make_dataclass("Cell", ("state", "is_active", "is_dirty", "ne
 
 class CellularAutomatonCreator(abc.ABC):
 
-    def __init__(self, dimension, image, neighbourhood: Neighbourhood, *args, **kwargs):
+    def __init__(self, dimension, image, ruleset, neighbourhood: Neighbourhood, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._dimension = dimension
         self._neighbourhood = neighbourhood
         self._image = image
+        self._ruleset = ruleset
 
         self._current_state = {}
         self._next_state = {}
         self.__make_cellular_automaton_state()
+
+    def get_ruleset(self):
+        return self._ruleset
+    
+    ruleset = property(get_ruleset)
 
     def get_image(self):
         return self._image
