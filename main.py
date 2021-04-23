@@ -29,7 +29,6 @@ def compare_rmse(im_compare, im_predict):
     """ Get RMSE of two images. """
 
     rmse = mean_squared_error(im_compare, im_predict)
-    print(rmse)
     return rmse
 
 
@@ -97,14 +96,17 @@ class ImageCA(CellularAutomaton):
         new_cell_state = last_cell_state
         if neighbours_last_states == []:
             return new_cell_state
+
         thresholded = self.__local_threshold(
             neighbours_last_states, last_cell_state)
         hashed = f'{thresholded}'
+
         if self.ruleset.get(hashed):
             new_cell_state = self.__local_average(neighbours_last_states)
-        print(thresholded)
-        input()
-        return new_cell_state
+            # print(last_cell_state, new_cell_state)
+            return [new_cell_state]
+        else:
+            return new_cell_state
 
     @staticmethod
     def __local_average(neighbours):
@@ -118,7 +120,7 @@ class ImageCA(CellularAutomaton):
     def __local_threshold(neighbours, c):
         """ Get threhsolded neighbours based on central cell. """
 
-        return [[0] if n > c else [1] if n == c else [2] for n in neighbours]
+        return [0 if n[0] > c[0] else 1 if n[0] == c[0] else 2 for n in neighbours]
 
 
 if __name__ == "__main__":
@@ -129,15 +131,12 @@ if __name__ == "__main__":
     noisy_path = settings["paths"]["samples"]["noisy"]
 
     # Load as grayscale image.
-    fpath = "satellite_2.jpg"
+    fpath = "satellite_4.jpg"
     img = cv.imread(compare_path + fpath, cv.IMREAD_GRAYSCALE)
     noisy = cv.imread(noisy_path + fpath, cv.IMREAD_GRAYSCALE)
 
-    use = []
-    for key in rules.keys():
-        use.append({key: rules[key]})
-
     w = noisy.shape[0]
     h = noisy.shape[1]
-    ca = ImageCA(dimension=[w, h], image=noisy.tolist(), ruleset=use[0])
-    ca.evolve()
+    ca = ImageCA(dimension=[w, h], image=noisy.tolist(), ruleset=rules)
+    # CAWindow(ca, window_size=(1500, 1000)).run(evolutions_per_second=40)
+    ca.evolve(times=5)
