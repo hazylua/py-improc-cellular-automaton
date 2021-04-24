@@ -11,6 +11,7 @@ from sklearn.metrics import mean_squared_error
 
 from cellular_automaton import CellularAutomaton, MooreNeighbourhood, EdgeRule
 from process_images import load_config
+from image_processing import save_img
 
 
 def load_rules(rpath):
@@ -135,8 +136,23 @@ if __name__ == "__main__":
     img = cv.imread(compare_path + fpath, cv.IMREAD_GRAYSCALE)
     noisy = cv.imread(noisy_path + fpath, cv.IMREAD_GRAYSCALE)
 
-    w = noisy.shape[0]
-    h = noisy.shape[1]
-    ca = ImageCA(dimension=[w, h], image=noisy.tolist(), ruleset=rules)
+    h = noisy.shape[0]
+    w = noisy.shape[1]
+    print(w, h)
+    ca = ImageCA(dimension=[h, w], image=noisy.tolist(), ruleset=rules)
     # CAWindow(ca, window_size=(1500, 1000)).run(evolutions_per_second=40)
     ca.evolve(times=5)
+
+    keys = list(ca.cells.keys())
+    cells = list(ca.cells.values())
+    image = []
+
+    start = 0
+    row_size = w - 1
+
+    for row in range(h):
+        img_row = np.array([cell.state[0]
+                            for cell in cells[start:start + row_size]])
+        start = start + row_size + 1
+        image.append(img_row)
+    save_img("./results/", "result.jpg", np.asarray(image))
