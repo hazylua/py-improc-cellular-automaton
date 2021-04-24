@@ -7,4 +7,5 @@ __pycache__
 
 # Results
 results/
+rules.json
 wait
