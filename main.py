@@ -140,19 +140,17 @@ if __name__ == "__main__":
     w = noisy.shape[1]
     print(w, h)
     ca = ImageCA(dimension=[h, w], image=noisy.tolist(), ruleset=rules)
-    # CAWindow(ca, window_size=(1500, 1000)).run(evolutions_per_second=40)
     ca.evolve(times=5)
 
     keys = list(ca.cells.keys())
-    cells = list(ca.cells.values())
-    image = []
+    cells = [cell.state[0] for cell in ca.cells.values()]
+
 
     start = 0
-    row_size = w - 1
+    row_size = w
 
+    img_proc = []
     for row in range(h):
-        img_row = np.array([cell.state[0]
-                            for cell in cells[start:start + row_size]])
+        img_row = [cell for cell in cells[start:start + row_size]]
         start = start + row_size + 1
-        image.append(img_row)
-    save_img("./results/", "result.jpg", np.asarray(image))
+        img_proc.append(img_row)
