@@ -136,9 +136,11 @@ if __name__ == "__main__":
     img = cv.imread(compare_path + fpath, cv.IMREAD_GRAYSCALE)
     noisy = cv.imread(noisy_path + fpath, cv.IMREAD_GRAYSCALE)
 
+    # Number of rows.
     h = noisy.shape[0]
+    # Number of columns.
     w = noisy.shape[1]
-    print(w, h)
+
     ca = ImageCA(dimension=[h, w], image=noisy.tolist(), ruleset=rules)
     ca.evolve(times=5)
 
