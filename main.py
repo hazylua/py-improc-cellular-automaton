@@ -152,6 +152,10 @@ if __name__ == "__main__":
 
     img_proc = []
     for row in range(h):
-        img_row = [cell for cell in cells[start:start + row_size]]        
+        img_row = [cell for cell in cells[start:start + row_size]]
         start = start + row_size
         img_proc.append(img_row)
+
+    predicted = np.asarray(img_proc, dtype=np.uint8)
+    print(compare_rmse(img, predicted))
+    print(compare_rmse(img, noisy))
