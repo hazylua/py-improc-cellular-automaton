@@ -147,12 +147,11 @@ if __name__ == "__main__":
     keys = list(ca.cells.keys())
     cells = [cell.state[0] for cell in ca.cells.values()]
 
-
     start = 0
     row_size = w
 
     img_proc = []
     for row in range(h):
-        img_row = [cell for cell in cells[start:start + row_size]]
-        start = start + row_size + 1
+        img_row = [cell for cell in cells[start:start + row_size]]        
+        start = start + row_size
         img_proc.append(img_row)
