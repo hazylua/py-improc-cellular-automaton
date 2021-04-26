@@ -54,18 +54,32 @@ def find_best(chunk, img_compare, img_noisy):
     """ Mapper. """
 
     print("Starting.")
-    compare = np.copy(img_compare)
-    field = np.copy(img_noisy)
 
-    gens = 10
+        # Number of rows.
+    height = img_noisy.shape[0]
+    # Number of columns.
+    width = img_noisy.shape[1]
 
     best_err = [None, None]
     for r in chunk.keys():
-        ca = CellularAutomata(field, {r: chunk[r][0]})
-        for _ in range(gens):
-            ca.evolve()
+        _ca = ImageCA(dimension=[height, width], image=img_noisy.tolist(), ruleset={
+                     r: chunk[r][0]})
+        _ca.evolve(times=50)
 
-        rule_err = compare_rmse(compare, ca.field)
+        _cells = [cell.state[0] for cell in _ca.cells.values()]
+
+        _start = 0
+        _row_size = width
+
+        _img_proc = []
+        for _row in range(height):
+            _img_row = [cell for cell in _cells[_start:_start + _row_size]]
+            _start = _start + _row_size
+            _img_proc.append(_img_row)
+
+        _predicted = np.asarray(_img_proc, dtype=np.uint8)
+
+        rule_err = compare_rmse(img_compare, _predicted)
 
         if best_err[0] is None:
             best_err = [rule_err, r]
