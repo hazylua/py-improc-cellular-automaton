@@ -3,6 +3,8 @@
 import json
 from typing import Sequence
 from itertools import islice
+from functools import reduce
+from multiprocessing import Pool
 
 import cv2 as cv
 import numpy as np
