@@ -157,21 +157,59 @@ if __name__ == "__main__":
     # Number of columns.
     w = noisy.shape[1]
 
-    ca = ImageCA(dimension=[h, w], image=noisy.tolist(), ruleset=rules)
-    ca.evolve(times=5)
+    best_rules = {}
+    no_change = 0
 
-    keys = list(ca.cells.keys())
-    cells = [cell.state[0] for cell in ca.cells.values()]
+    while len(best_rules) < 100 or no_change < 10 or len(rules) > 100:
+        splits = list(chunks(rules, split_size))
 
-    start = 0
-    row_size = w
+        mapper = find_best
+        reducer = get_best
 
-    img_proc = []
-    for row in range(h):
-        img_row = [cell for cell in cells[start:start + row_size]]
-        start = start + row_size
-        img_proc.append(img_row)
+        chunk_args = []
+        for split in splits:
+            #temp = []
+            for key in split.keys():
+                chunk_args.append(
+                    ({key: split[key]}, img.copy(), noisy.copy()))
+            # chunk_args.append(temp)
 
-    predicted = np.asarray(img_proc, dtype=np.uint8)
-    print(compare_rmse(img, predicted))
-    print(compare_rmse(img, noisy))
+        with Pool(4) as pool:
+            mapped = pool.starmap(mapper, chunk_args)
+
+        best_rule = reduce(reducer, mapped)
+        key = best_rule[1]
+
+        # Temporary.
+        temp = best_rules
+
+        # Add rule to best rules.
+        best_rules[key] = rules[key]
+        # Remove from rules.
+        rules.pop(key, None)
+
+        i = 0
+        if i != 0:
+            for best in best_rules.keys():
+                no_best = best_rules
+                del no_best[best]
+
+                ca = ImageCA(dimension=[h, w], image=noisy, ruleset=no_best)
+                ca.evolve(times=50)
+
+                cells = [cell.state[0] for cell in ca.cells.values()]
+
+                start = 0
+                row_size = w
+
+                img_proc = []
+                for row in range(h):
+                    img_row = [cell for cell in cells[start:start + row_size]]
+                    start = start + row_size
+                    img_proc.append(img_row)
+
+                predicted = np.asarray(img_proc, dtype=np.uint8)
+
+                ca_rmse = compare_rmse(img, predicted)
+        else:
+            ca_rmse = best_rule[0]
