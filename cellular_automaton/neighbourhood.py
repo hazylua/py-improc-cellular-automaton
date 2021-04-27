@@ -68,6 +68,7 @@ class Neighbourhood:
                     yield tuple(map(operator.add, rel_n, cell_coordinate))
 
     def __is_coordinate_on_an_edge(self, coordinate):
+        """ Checks to see if it is on edge by comparing the dimensions to radius and coordinates. """
         return any(not(self._radius - 1 < ci < di - self._radius)
                    for ci, di in zip(coordinate, self._grid_dimensions))
 

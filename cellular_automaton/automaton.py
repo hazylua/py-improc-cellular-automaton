@@ -9,7 +9,6 @@ from cellular_automaton import Neighbourhood
 CELL = recordclass.make_dataclass("Cell", ("state", "is_active", "is_dirty", "neighbours"),
                                   defaults=((0, ), True, True, (None,)))
 
-
 class CellularAutomatonCreator(abc.ABC):
 
     def __init__(self, dimension, image, ruleset, neighbourhood: Neighbourhood, *args, **kwargs):
@@ -89,7 +88,6 @@ class CellularAutomaton(CellularAutomatonCreator, abc.ABC):
         return self._current_state
 
     def set_cells(self, cells):
-
         for (coordinate, c_cell), n_cell in zip(self._current_state.items(), self._next_state.values()):
             new_cell_state = cells[coordinate].state
             c_cell.state = new_cell_state
