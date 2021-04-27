@@ -157,7 +157,7 @@ if __name__ == "__main__":
     # Number of columns.
     w = noisy.shape[1]
     
-    ca = ImageCA(dimension=[h, w], image=noisy.tolist(), ruleset=rules)
+    # ca = ImageCA(dimension=[h, w], image=noisy.tolist(), ruleset=rules)
 
     best_rules = {}
     no_change = 0
