@@ -6,8 +6,8 @@ from itertools import islice
 from functools import reduce
 from multiprocessing import Pool
 
-import cv2 as cv
 import numpy as np
+import cv2 as cv
 
 from sklearn.metrics import mean_squared_error
 
@@ -156,6 +156,8 @@ if __name__ == "__main__":
     h = noisy.shape[0]
     # Number of columns.
     w = noisy.shape[1]
+    
+    ca = ImageCA(dimension=[h, w], image=noisy.tolist(), ruleset=rules)
 
     best_rules = {}
     no_change = 0
