@@ -9,6 +9,7 @@ from cellular_automaton import Neighbourhood
 CELL = recordclass.make_dataclass("Cell", ("state", "is_active", "is_dirty", "neighbours"),
                                   defaults=((0, ), True, True, (None,)))
 
+
 class CellularAutomatonCreator(abc.ABC):
 
     def __init__(self, dimension, image, ruleset, neighbourhood: Neighbourhood, *args, **kwargs):
@@ -24,14 +25,14 @@ class CellularAutomatonCreator(abc.ABC):
 
     def get_ruleset(self):
         return self._ruleset
-    
+
     ruleset = property(get_ruleset)
 
     def get_image(self):
         return self._image
-    
+
     image = property(get_image)
-    
+
     def get_dimension(self):
         return self._dimension
 
@@ -48,13 +49,19 @@ class CellularAutomatonCreator(abc.ABC):
             self._next_state[coordinate] = CELL(cell_state)
 
     def __add_neighbours(self):
+        """ Sets neighbours for each cell in the state dictionary.
+        Loops through 'zipped' coordinates and dictionary values of both next and current state.
+        :param coordinate: (x, y)
+        :param cell_c: CELL of current state
+        :param cell_n: CELL of next state 
+        """
         calculate_cell_neighbour_coordinates = self._neighbourhood.calculate_cell_neighbour_coordinates
         coordinates = self._current_state.keys()
         for coordinate, cell_c, cell_n in zip(coordinates, self._current_state.values(), self._next_state.values()):
             n_coord = calculate_cell_neighbour_coordinates(
                 coordinate, self._dimension)
             cell_c.neighbours = list([self._current_state[nc]
-                                     for nc in n_coord])
+                                      for nc in n_coord])
             cell_n.neighbours = list([self._next_state[nc] for nc in n_coord])
 
     def init_cell_state(self, cell_coordinate: Sequence) -> Sequence:  # pragma: no cover
