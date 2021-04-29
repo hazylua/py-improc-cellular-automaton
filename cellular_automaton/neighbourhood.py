@@ -1,3 +1,5 @@
+""" Defines cell neighbourhood. """
+
 import enum
 import operator
 import itertools
@@ -28,7 +30,7 @@ class Neighbourhood:
         Get a list of absolute coordinates for the cell neighbours.
         The EdgeRule can reduce the returned neighbour count, as in, by ignoring edge cells etc.
         :param cell_coordinate: The coordinate of the cell. In: tuple = (x, y)
-        :param grid_dimeinsions: The dimensions of the grid, to apply the edge rule. In: ?
+        :param grid_dimensions: The dimensions of the grid, to apply the edge rule. In: array = [height, width]
         :return: List of absolute coordinates for the cells neighbours.
         """
 
@@ -36,6 +38,8 @@ class Neighbourhood:
         return tuple(self._neighbours_generator(cell_coordinate))
 
     def __lazy_initialize_relative_neighbourhood(self, grid_dimensions):
+        """ Lazy init of relative neighbourhood of a given cell. """
+
         self._grid_dimensions = grid_dimensions
         if self._rel_neighbours is None:
             self._create_relative_neighbourhood()
@@ -71,6 +75,7 @@ class Neighbourhood:
         """ Checks to see if it is on edge by comparing the dimensions to radius and coordinates. """
         return any(not(self._radius - 1 < ci < di - self._radius)
                    for ci, di in zip(coordinate, self._grid_dimensions))
+
 
 class MooreNeighbourhood(Neighbourhood):
     """
