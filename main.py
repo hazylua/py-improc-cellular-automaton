@@ -15,7 +15,6 @@ from cellular_automaton import CellularAutomaton, MooreNeighbourhood, EdgeRule
 from process_images import load_config
 from image_processing import save_img
 
-
 def load_rules(rpath):
     """ Load rules from file. """
 
@@ -176,7 +175,7 @@ if __name__ == "__main__":
                     ({key: split[key]}, img.copy(), noisy.copy()))
             # chunk_args.append(temp)
 
-        with Pool(4) as pool:
+        with Pool(3) as pool:
             mapped = pool.starmap(mapper, chunk_args)
 
         best_rule = reduce(reducer, mapped)
@@ -197,7 +196,7 @@ if __name__ == "__main__":
                 del no_best[best]
 
                 ca = ImageCA(dimension=[h, w], image=noisy, ruleset=no_best)
-                ca.evolve(times=50)
+                ca.evolve(times=20)
 
                 cells = [cell.state[0] for cell in ca.cells.values()]
 
