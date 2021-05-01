@@ -194,7 +194,7 @@ if __name__ == "__main__":
         # Remove best rule from possible rules to pick.
         rules.pop(added_key, None)
 
-        i = 0
+        # Check if it's the first iteration.
         if i != 0:
             for best in best_rules.keys():
                 no_best = best_rules
@@ -217,5 +217,8 @@ if __name__ == "__main__":
                 predicted = np.asarray(img_proc, dtype=np.uint8)
 
                 ca_rmse = compare_rmse(img, predicted)
+
         else:
-            ca_rmse = best_rule[0]
+            ca_rmse = best_score[0]
+
+        i += 1
