@@ -155,11 +155,13 @@ if __name__ == "__main__":
     h = noisy.shape[0]
     # Number of columns.
     w = noisy.shape[1]
-    
+
     # ca = ImageCA(dimension=[h, w], image=noisy.tolist(), ruleset=rules)
 
+    previous_score = None
     best_rules = {}
     no_change = 0
+    i = 0
 
     while len(best_rules) < 100 or no_change < 10 or len(rules) > 100:
         splits = list(chunks(rules, split_size))
@@ -176,18 +178,21 @@ if __name__ == "__main__":
             # chunk_args.append(temp)
 
         with Pool(3) as pool:
-            mapped = pool.starmap(mapper, chunk_args)
+        # Get best values in a tuple.
+        # First value indicates the score.
+        # Second value indicates the ruleset that gave the best score.
+        best_values = reduce(reducer, mapped)
 
-        best_rule = reduce(reducer, mapped)
-        key = best_rule[1]
+        # Found best rule and score.
+        best_score = best_values[0]
+        best_rules = best_values[1]
+        added_key = best_values[3]
 
-        # Temporary.
-        temp = best_rules
+        # Best rule without new rule added from current iteration.
+        previous_best = best_rules
 
-        # Add rule to best rules.
-        best_rules[key] = rules[key]
-        # Remove from rules.
-        rules.pop(key, None)
+        # Remove best rule from possible rules to pick.
+        rules.pop(added_key, None)
 
         i = 0
         if i != 0:
