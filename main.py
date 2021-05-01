@@ -196,11 +196,13 @@ if __name__ == "__main__":
 
         # Check if it's the first iteration.
         if i != 0:
-            for best in best_rules.keys():
-                no_best = best_rules
-                del no_best[best]
+            # Remove rules to check which provides with the best result.
+            # If a rule removed is better than the previous best.
+            for key in best_rules.keys():
+                removed_key = best_rules
+                del removed_key[key]
 
-                ca = ImageCA(dimension=[h, w], image=noisy, ruleset=no_best)
+                ca = ImageCA(dimension=[h, w], image=noisy, ruleset=removed_key)
                 ca.evolve(times=20)
 
                 cells = [cell.state[0] for cell in ca.cells.values()]
