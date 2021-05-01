@@ -189,32 +189,27 @@ if __name__ == "__main__":
         rules.pop(added_key, None)
 
         # Check if it's the first iteration.
-        if i != 0:
+        if len(best_ruleset) > 1:
             # Remove rules to check which provides with the best result.
             # If a rule removed is better than the previous best.
-            for key in best_rules.keys():
-                removed_key = best_rules
-                del removed_key[key]
+            best_ruleset_copies = [best_ruleset.copy()
+                                   for _ in range(len(best_ruleset))]
+            best_ruleset_keys = best_ruleset.keys()
+            # Copy of best_ruleset with each copy having a key removed to check which key removed gives the best value.
+            pairs = list(zip(best_ruleset_copies, best_ruleset_keys))
+            # Removing keys of each key.
+            for pair in pairs:
+                del pair[0][pair[1]]
 
-                ca = ImageCA(dimension=[h, w], image=noisy, ruleset=removed_key)
-                ca.evolve(times=20)
+            chunk_args = []
+            for pair in pairs:
+                chunk_args.append((pair[0], pair[1], img.copy(), noisy.copy()))
 
-                cells = [cell.state[0] for cell in ca.cells.values()]
+            with Pool(3) as pool:
+                mapped = pool.starmap(mapper, chunk_args)
+            best_removed = reduce(reducer, mapped)
 
-                start = 0
-                row_size = w
-
-                img_proc = []
-                for row in range(h):
-                    img_row = [cell for cell in cells[start:start + row_size]]
-                    start = start + row_size
-                    img_proc.append(img_row)
-
-                predicted = np.asarray(img_proc, dtype=np.uint8)
-
-                ca_rmse = compare_rmse(img, predicted)
-
-        else:
-            ca_rmse = best_score[0]
-
-        i += 1
+            if best_removed < best_score:
+                best_ruleset = best_removed
+            else:
+                continue
