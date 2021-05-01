@@ -159,7 +159,7 @@ if __name__ == "__main__":
     # ca = ImageCA(dimension=[h, w], image=noisy.tolist(), ruleset=rules)
 
     previous_score = None
-    best_rules = {}
+    best_ruleset = {}
     no_change = 0
     i = 0
 
@@ -178,18 +178,12 @@ if __name__ == "__main__":
             # chunk_args.append(temp)
 
         with Pool(3) as pool:
-        # Get best values in a tuple.
+
+        # Get best values in a list.
         # First value indicates the score.
         # Second value indicates the ruleset that gave the best score.
-        best_values = reduce(reducer, mapped)
-
-        # Found best rule and score.
-        best_score = best_values[0]
-        best_rules = best_values[1]
-        added_key = best_values[3]
-
-        # Best rule without new rule added from current iteration.
-        previous_best = best_rules
+        # Third value indicates added key to ruleset that gave the best score.
+        best_score, best_ruleset, added_key = reduce(reducer, mapped)
 
         # Remove best rule from possible rules to pick.
         rules.pop(added_key, None)
