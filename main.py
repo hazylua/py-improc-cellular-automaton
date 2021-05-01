@@ -163,21 +163,19 @@ if __name__ == "__main__":
     no_change = 0
     i = 0
 
-    while len(best_rules) < 100 or no_change < 10 or len(rules) > 100:
-        splits = list(chunks(rules, split_size))
+    while len(best_ruleset) < 100 or no_change < 10 or len(rules) > 100:
+        # Find rule with best score.
 
         mapper = find_best
         reducer = get_best
 
         chunk_args = []
-        for split in splits:
-            #temp = []
-            for key in split.keys():
-                chunk_args.append(
-                    ({key: split[key]}, img.copy(), noisy.copy()))
-            # chunk_args.append(temp)
+        for key in rules.keys():
+            chunk_args.append(
+                ({**{key: rules[key]}, **best_ruleset}, key, img.copy(), noisy.copy()))
 
         with Pool(3) as pool:
+            mapped = pool.starmap(mapper, chunk_args)
 
         # Get best values in a list.
         # First value indicates the score.
