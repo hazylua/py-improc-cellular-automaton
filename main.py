@@ -215,5 +215,6 @@ if __name__ == "__main__":
             if best_removed < best_score:
                 best_ruleset = best_removed
             else:
+                no_change += 1
                 continue
             print(f"Got ruleset: {best_ruleset}")
