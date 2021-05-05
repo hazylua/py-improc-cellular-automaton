@@ -210,10 +210,11 @@ if __name__ == "__main__":
 
             with Pool(3) as pool:
                 mapped = pool.starmap(mapper, chunk_args)
-            best_removed = reduce(reducer, mapped)
 
-            if best_removed < best_score:
-                best_ruleset = best_removed
+            removed_score, best_ruleset_removed, removed_key = reduce(reducer, mapped)
+
+            if removed_score < best_score:
+                best_ruleset = best_ruleset_removed
             else:
                 no_change += 1
                 continue
