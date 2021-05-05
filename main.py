@@ -164,6 +164,7 @@ if __name__ == "__main__":
     i = 0
 
     while len(best_ruleset) < 100 or no_change < 10 or len(rules) > 100:
+        print("Finding best ruleset.")
         # Find rule with best score.
 
         mapper = find_best
@@ -182,12 +183,16 @@ if __name__ == "__main__":
         # Second value indicates the ruleset that gave the best score.
         # Third value indicates added key to ruleset that gave the best score.
         best_score, best_ruleset, added_key = reduce(reducer, mapped)
+        print(f"Got best rule: {added_key}. Score: {best_score}")
+        print("Ruleset:")
+        for rule in best_ruleset: print(f"{rule}")
 
         # Remove best rule from possible rules to pick.
         rules.pop(added_key, None)
 
         # Check if it's the first iteration.
         if len(best_ruleset) > 1:
+            print("Running algorithm...")
             # Remove rules to check which provides with the best result.
             # If a rule removed is better than the previous best.
             best_ruleset_copies = [best_ruleset.copy()
@@ -211,3 +216,4 @@ if __name__ == "__main__":
                 best_ruleset = best_removed
             else:
                 continue
+            print(f"Got ruleset: {best_ruleset}")
