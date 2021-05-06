@@ -173,13 +173,14 @@ if __name__ == "__main__":
         mapper = find_best
         reducer = get_best
 
-        chunk_args = []
+        map_args = []
         for key in rules.keys():
-            chunk_args.append(
-                ({**{key: rules[key]}, **best_ruleset}, key, img.copy(), noisy.copy()))
+            map_args.append(
+                ( {**{key: rules[key]}, **best_ruleset}, key, img.copy(), noisy.copy() )
+            )
 
         with Pool(3) as pool:
-            mapped = pool.starmap(mapper, chunk_args)
+            mapped = pool.starmap(mapper, map_args)
 
         # Get best values in a list.
         # First value indicates the score.
