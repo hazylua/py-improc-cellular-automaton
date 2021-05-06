@@ -218,6 +218,8 @@ if __name__ == "__main__":
             with Pool(3) as pool:
                 mapped = pool.starmap(mapper, chunk_args)
 
+            removed_score, best_ruleset_removed, removed_key = reduce(
+                reducer, mapped)
             print(
                 f"Found. Best key removed: {removed_key}. Removed score: {removed_score}.")
             logger.write_to_file(
