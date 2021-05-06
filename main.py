@@ -211,12 +211,12 @@ if __name__ == "__main__":
             for pair in pairs:
                 del pair[0][pair[1]]
 
-            chunk_args = []
+            map_args = []
             for pair in pairs:
-                chunk_args.append((pair[0], pair[1], img.copy(), noisy.copy()))
+                map_args.append((pair[0], pair[1], img.copy(), noisy.copy()))
 
             with Pool(3) as pool:
-                mapped = pool.starmap(mapper, chunk_args)
+                mapped = pool.starmap(mapper, map_args)
 
             removed_score, best_ruleset_removed, removed_key = reduce(
                 reducer, mapped)
