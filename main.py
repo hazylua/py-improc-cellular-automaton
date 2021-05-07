@@ -141,6 +141,7 @@ class ImageCA(CellularAutomaton):
 
 if __name__ == "__main__":
     rules = load_rules("rules.json")
+    log = "log.txt"
     settings = load_config("settings.json")
     split_size = settings["split_size"]
     compare_path = settings["paths"]["samples"]["processed"]
