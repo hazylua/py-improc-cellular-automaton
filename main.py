@@ -6,14 +6,17 @@ from itertools import islice
 from functools import reduce
 from multiprocessing import Pool
 
+import itertools as it
 import numpy as np
 import cv2 as cv
 
 from sklearn.metrics import mean_squared_error
 
+import logger
 from cellular_automaton import CellularAutomaton, MooreNeighbourhood, EdgeRule
 from process_images import load_config
 from image_processing import save_img
+
 
 def load_rules(rpath):
     """ Load rules from file. """
