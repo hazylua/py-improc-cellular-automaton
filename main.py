@@ -53,45 +53,39 @@ def get_best(val1, val2):
     else:
         return val1
 
-
-def find_best(chunk, img_compare, img_noisy):
+def find_best(ruleset, added, img_compare, img_noisy):
     """ Mapper. """
-
     print("Starting.")
 
-        # Number of rows.
+    # Number of rows.
     height = img_noisy.shape[0]
     # Number of columns.
     width = img_noisy.shape[1]
 
-    best_err = [None, None]
-    for r in chunk.keys():
-        _ca = ImageCA(dimension=[height, width], image=img_noisy.tolist(), ruleset={
-                     r: chunk[r][0]})
-        _ca.evolve(times=50)
+    _ca = ImageCA(dimension=[height, width],
+                  image=img_noisy.tolist(), ruleset=ruleset)
+    _ca.evolve(times=10)
 
-        _cells = [cell.state[0] for cell in _ca.cells.values()]
+    _cells = [cell.state[0] for cell in _ca.cells.values()]
 
-        _start = 0
-        _row_size = width
+    _start = 0
+    _row_size = width
 
-        _img_proc = []
-        for _row in range(height):
-            _img_row = [cell for cell in _cells[_start:_start + _row_size]]
-            _start = _start + _row_size
-            _img_proc.append(_img_row)
+    _img_proc = []
+    for _row in range(height):
+        _img_row = [cell for cell in _cells[_start:_start + _row_size]]
+        _start = _start + _row_size
+        _img_proc.append(_img_row)
 
-        _predicted = np.asarray(_img_proc, dtype=np.uint8)
+    _predicted = np.asarray(_img_proc, dtype=np.uint8)
 
-        rule_err = compare_rmse(img_compare, _predicted)
+    ruleset_err = compare_rmse(img_compare, _predicted)
 
-        if best_err[0] is None:
-            best_err = [rule_err, r]
-        elif best_err[0] > rule_err:
-            best_err = [rule_err, r]
+    result = [ruleset_err, ruleset, added]
 
-    print(f'Found best: {best_err}')
-    return best_err
+    print(f'Got: {ruleset_err} from {added}')
+    _ca = None
+    return result
 
 
 class ImageCA(CellularAutomaton):
