@@ -135,6 +135,12 @@ class ImageCA(CellularAutomaton):
 
         return [0 if n[0] > c[0] else 1 if n[0] == c[0] else 2 for n in neighbours]
 
+    def __del__(self):
+        coordinates = self._current_state.keys()
+        for coordinate, cell_c, cell_n in zip(coordinates, self._current_state.values(), self._next_state.values()):
+            cell_c.neighbours = (None, )
+            cell_n.neighbours = (None, )
+
 
 if __name__ == "__main__":
     rules = load_rules("rules.json")
