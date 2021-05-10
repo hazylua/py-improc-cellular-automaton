@@ -9,3 +9,4 @@ __pycache__
 results/
 rules.json
 wait
+log.txt
