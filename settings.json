@@ -2,7 +2,9 @@
   "states": [0, 1, 2],
   "neighbourhood_size": 8,
   "split_size": 254,
+  "generations": 20,
   "paths": {
+    "logger": "log.txt",
     "results": "./results/",
     "samples": {
       "clean": "./samples/clean/",
