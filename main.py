@@ -2,7 +2,6 @@
 
 import json
 from typing import Sequence
-from itertools import islice
 from functools import reduce
 from multiprocessing import Pool
 
@@ -37,14 +36,6 @@ def compare_rmse(im_compare, im_predict):
     return rmse
 
 
-def chunks(data, size=10000):
-    """ Split dict into chunks. """
-
-    it = iter(data)
-    for _ in range(0, len(data), size):
-        yield {k: data[k] for k in islice(it, size)}
-
-
 def get_best(val1, val2):
     """ Reducer. """
 
@@ -52,6 +43,7 @@ def get_best(val1, val2):
         return val2
     else:
         return val1
+
 
 def find_best(ruleset, added, img_compare, img_noisy):
     """ Mapper. """
@@ -144,6 +136,7 @@ class ImageCA(CellularAutomaton):
 
 if __name__ == "__main__":
     rules = load_rules("rules.json")
+
     log = "log.txt"
     settings = load_config("settings.json")
     split_size = settings["split_size"]
@@ -159,8 +152,6 @@ if __name__ == "__main__":
     h = noisy.shape[0]
     # Number of columns.
     w = noisy.shape[1]
-
-    # ca = ImageCA(dimension=[h, w], image=noisy.tolist(), ruleset=rules)
 
     previous_score = None
     best_ruleset = {}
@@ -180,8 +171,11 @@ if __name__ == "__main__":
         map_args = []
         for key in rules.keys():
             map_args.append(
-                ( {**{key: rules[key]}, **best_ruleset}, key, img.copy(), noisy.copy() )
+                ({**{key: rules[key]}, **best_ruleset},
+                 key, img.copy(), noisy.copy())
             )
+
+        # mapped = it.starmap(mapper, map_args)
 
         with Pool(3) as pool:
             mapped = pool.starmap(mapper, map_args)
@@ -218,7 +212,7 @@ if __name__ == "__main__":
 
             map_args = []
             for pair in pairs:
-                map_args.append((pair[0], pair[1], img.copy(), noisy.copy()))
+                map_args.append((pair[0], pair[1], img, noisy))
 
             with Pool(3) as pool:
                 mapped = pool.starmap(mapper, map_args)
