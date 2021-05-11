@@ -219,25 +219,26 @@ if __name__ == "__main__":
 
             removed_score, best_ruleset_removed, removed_key = reduce(
                 reducer, mapped)
-            
+
             print(
                 f"Found. Best key removed: {removed_key}. Removed score: {removed_score}.")
             logger.write_to_file(
                 f"Found. Best key removed: {removed_key}. Removed score: {removed_score}.", log)
 
             if removed_score < best_score:
+                best_ruleset = best_ruleset_removed
+                no_change = 0
+
                 print("Removed score is better. Moving on and replacing...")
                 logger.write_to_file(
                     "Removed score is better. Moving on and replacing...", log)
-                
-                best_ruleset = best_ruleset_removed
             else:
-                print("No change. Moving on...")
-                logger.write_to_file("No change. Moving on...", log)
-                
                 no_change += 1
+                print("No change. Moving on...")
+                logger.write_to_file(
+                    f"No change; no_change = {no_change}. Moving on...", log)
                 continue
-            
+
             print(f"Got ruleset: {best_ruleset}")
 
         print(f"Final score: {best_score}")
