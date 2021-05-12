@@ -33,39 +33,34 @@ def image_resize(img, width=None, height=None, inter=cv.INTER_AREA):
     """ Resizes image keeping aspect ratio. """
     
     dim = None
-    (h, w) = img.shape[:2]
+    [h, w] = img.shape[:2]
+    print(h, w)
     if width is None and height is None:
         return img
-    if width is None:
-
+    if height is not None and height < h:
         r = height / float(h)
         dim = (int(w * r), height)
-    else:
+        [w, h] = dim
+    if width is not None and width < w:
         r = width / float(w)
         dim = (width, int(h * r))
 
+    print(dim, height, width)
     resized = cv.resize(img, dim, interpolation=inter)
     return resized
 
-def read_preprocess(img_path, resize=False, height_resize=None, width_resize=None, noise=False):
+def read_preprocess(img_path, resize=False, height_resize=None, width_resize=None, noise=False, rate=0.005):
     """ Image pre-processing routine. """
 
     print('Pre-processing...')
     img = cv.imread(img_path)
     
     if(resize):
-        h = None
-        w = None
-        if(height_resize):
-            h = int(img.shape[1] * height_resize)
-        elif(width_resize):
-            w = int(img.shape[0] * width_resize)
-        img = image_resize(img, height=h, width=w)
+        img = image_resize(img, height=height_resize, width=width_resize)
 
     # Ex.: "salt_pepper"
     if(noise):
-        print(noise)
-        img = add_noise(img, noise)
+        img = add_noise(img, noise, rate=rate)
         
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
