@@ -7,11 +7,11 @@ import numpy as np
 from file_operations import check_dir
 
 
-def add_noise(image, noise):
+def add_noise(image, noise, rate=0.005):
     """ Adds noise to image. """
 
     if noise == "salt_pepper":
-        prob = 0.005
+        prob = rate
         output = np.zeros(image.shape,np.uint8)
         thres = 1 - prob 
         for i in range(image.shape[0]):
