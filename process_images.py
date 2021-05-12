@@ -7,7 +7,8 @@ import image_processing as improc
 
 def save_configured(config):
     resize = config["process"]["resize"]
-    resize_ratio = config["process"]["resize_ratio"]
+    height_max = config["process"]["height_max"]
+    width_max = config["process"]["width_max"]
 
     processed_path = config["paths"]["samples"]["processed"]
     clean_path = config["paths"]["samples"]["clean"]
@@ -16,7 +17,7 @@ def save_configured(config):
     for img_file in clean_imgs:
         print(img_file)
         img_configured = improc.read_preprocess(
-            clean_path + img_file, resize=resize, height_resize=resize_ratio)
+            clean_path + img_file, resize=resize, height_resize=height_max, width_resize=width_max)
         improc.save_img(
             processed_path, f"{img_file}", img_configured)
 
@@ -28,7 +29,7 @@ def save_noisy(config):
     processed_imgs = listdir(processed_path)
     for img_file in processed_imgs:
         img_noisy = improc.read_preprocess(
-            processed_path + img_file, noise="salt_pepper")
+            processed_path + img_file, noise="salt_pepper", rate=0.009)
         improc.save_img(noisy_path, f"{img_file}", img_noisy)
 
 
