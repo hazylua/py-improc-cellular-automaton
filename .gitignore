@@ -10,3 +10,4 @@ results/
 rules.json
 wait
 log.txt
+*.exe
