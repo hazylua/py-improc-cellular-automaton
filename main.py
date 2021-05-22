@@ -1,4 +1,4 @@
-""" Run cellular automata. """
+""" Try to find best ruleset by running CA and using SFFS. """
 
 import json
 from typing import Sequence
