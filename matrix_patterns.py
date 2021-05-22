@@ -1,4 +1,7 @@
-""" Matrix operations for square matrices. """
+"""
+Matrix transformations for square matrices.
+Very simple implementation, simply swaps values around.
+"""
 
 from math import ceil
 # import copy
