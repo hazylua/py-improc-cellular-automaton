@@ -5,11 +5,11 @@
   "generations": 20,
   "paths": {
     "logger": "log.txt",
-    "results": "./results/",
+    "results": "/results/",
     "samples": {
-      "clean": "./samples/clean/",
-      "processed": "./samples/processed/",
-      "noisy": "./samples/noisy/"
+      "clean": "/samples/clean/",
+      "processed": "/samples/processed/",
+      "noisy": "/samples/noisy/"
     }
   },
   "process": {
