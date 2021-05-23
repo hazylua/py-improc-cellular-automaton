@@ -1,20 +1,21 @@
 """ Try to find best ruleset by running CA and using SFFS. """
 
+import itertools as it
 import json
-from typing import Sequence
 from functools import reduce
 from multiprocessing import Pool
+from typing import Sequence
 
-import itertools as it
-import numpy as np
 import cv2 as cv
-
+import numpy as np
 from sklearn.metrics import mean_squared_error
 
 import logger
-from cellular_automaton import CellularAutomaton, MooreNeighbourhood, EdgeRule
-from process_images import load_config
+from cellular_automaton import CellularAutomaton, EdgeRule, MooreNeighbourhood
 from image_processing import save_img
+from setup_samples import load_config
+
+
 
 
 def load_rules(rpath):
