@@ -16,6 +16,60 @@ from image_processing import save_img
 from setup_samples import load_config
 
 
+class ImageCA(CellularAutomaton):
+    """
+    Implementation of cellular automaton using grayscale image pixel values as initial state.
+    """
+
+    def __init__(self, dimension, image, ruleset):
+        super().__init__(dimension=dimension, image=image, ruleset=ruleset,
+                         neighbourhood=MooreNeighbourhood(EdgeRule.IGNORE_EDGE_CELLS))
+
+    def init_cell_state(self, cell_coordinate: Sequence) -> Sequence:  # pragma: no cover
+        x, y = cell_coordinate
+        init = self._image[x][y]
+        return [init]
+
+    def evolve_rule(self, last_cell_state, neighbours_last_states):
+        """
+        Change cell state if neighbours match a rule in ruleset.
+        New state will be the average of neighbour cells.
+        """
+
+        new_cell_state = last_cell_state
+        if neighbours_last_states == []:
+            return new_cell_state
+
+        thresholded = self.__local_threshold(
+            neighbours_last_states, last_cell_state)
+        hashed = f'{thresholded}'
+
+        if self.ruleset.get(hashed):
+            new_cell_state = self.__local_average(neighbours_last_states)
+            # print(last_cell_state, new_cell_state)
+            return [new_cell_state]
+        else:
+            return new_cell_state
+
+    @staticmethod
+    def __local_average(neighbours):
+        """ Get local average of neighbours. """
+
+        values = list(map(sum, neighbours))
+        local = int(sum(values) / len(values))
+        return local
+
+    @staticmethod
+    def __local_threshold(neighbours, c):
+        """ Get threhsolded neighbours based on central cell. """
+
+        return [0 if n[0] > c[0] else 1 if n[0] == c[0] else 2 for n in neighbours]
+
+    def __del__(self):
+        coordinates = self._current_state.keys()
+        for coordinate, cell_c, cell_n in zip(coordinates, self._current_state.values(), self._next_state.values()):
+            cell_c.neighbours = (None, )
+            cell_n.neighbours = (None, )
 
 
 def load_rules(rpath):
@@ -79,60 +133,6 @@ def find_best(ruleset, added, img_compare, img_noisy):
     print(f'Got: {ruleset_err} from {added}')
     _ca = None
     return result
-
-
-class ImageCA(CellularAutomaton):
-    """ Use Cellular Automaton with grayscale image pixel values as initial state. """
-
-    def __init__(self, dimension, image, ruleset):
-        super().__init__(dimension=dimension, image=image, ruleset=ruleset,
-                         neighbourhood=MooreNeighbourhood(EdgeRule.IGNORE_EDGE_CELLS))
-
-    def init_cell_state(self, cell_coordinate: Sequence) -> Sequence:  # pragma: no cover
-        x, y = cell_coordinate
-        init = self._image[x][y]
-        return [init]
-
-    def evolve_rule(self, last_cell_state, neighbours_last_states):
-        """
-        Change cell state if neighbours match a rule in ruleset.
-        New state will the average of neighbour cells.
-        """
-
-        new_cell_state = last_cell_state
-        if neighbours_last_states == []:
-            return new_cell_state
-
-        thresholded = self.__local_threshold(
-            neighbours_last_states, last_cell_state)
-        hashed = f'{thresholded}'
-
-        if self.ruleset.get(hashed):
-            new_cell_state = self.__local_average(neighbours_last_states)
-            # print(last_cell_state, new_cell_state)
-            return [new_cell_state]
-        else:
-            return new_cell_state
-
-    @staticmethod
-    def __local_average(neighbours):
-        """ Get local average of neighbours. """
-
-        values = list(map(sum, neighbours))
-        local = int(sum(values) / len(values))
-        return local
-
-    @staticmethod
-    def __local_threshold(neighbours, c):
-        """ Get threhsolded neighbours based on central cell. """
-
-        return [0 if n[0] > c[0] else 1 if n[0] == c[0] else 2 for n in neighbours]
-
-    def __del__(self):
-        coordinates = self._current_state.keys()
-        for coordinate, cell_c, cell_n in zip(coordinates, self._current_state.values(), self._next_state.values()):
-            cell_c.neighbours = (None, )
-            cell_n.neighbours = (None, )
 
 
 if __name__ == "__main__":
