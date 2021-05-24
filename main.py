@@ -1,5 +1,6 @@
 """ Try to find best ruleset by running CA and using SFFS. """
 
+import os
 import itertools as it
 import json
 from functools import reduce
@@ -146,8 +147,10 @@ if __name__ == "__main__":
 
     # Load as grayscale image.
     fpath = "satellite_4.jpg"
-    img = cv.imread(compare_path + fpath, cv.IMREAD_GRAYSCALE)
-    noisy = cv.imread(noisy_path + fpath, cv.IMREAD_GRAYSCALE)
+    abspath_noisy = os.path.abspath("./") + noisy_path + fpath
+    abspath_compare = os.path.abspath("./") + compare_path + fpath
+    img = cv.imread(abspath_compare, cv.IMREAD_GRAYSCALE)
+    noisy = cv.imread(abspath_noisy, cv.IMREAD_GRAYSCALE)
 
     # Number of rows.
     h = noisy.shape[0]
