@@ -1,7 +1,7 @@
 """ Generate images to process and compare. """
 
 import json
-from os import listdir
+from os import listdir, path
 import image_processing as improc
 
 
@@ -10,8 +10,8 @@ def save_configured(config):
     height_max = config["process"]["height_max"]
     width_max = config["process"]["width_max"]
 
-    processed_path = config["paths"]["samples"]["processed"]
-    clean_path = config["paths"]["samples"]["clean"]
+    processed_path = path.abspath("./") + config["paths"]["samples"]["processed"]
+    clean_path = path.abspath("./") + config["paths"]["samples"]["clean"]
 
     clean_imgs = listdir(clean_path)
     for img_file in clean_imgs:
@@ -23,8 +23,8 @@ def save_configured(config):
 
 
 def save_noisy(config):
-    noisy_path = config["paths"]["samples"]["noisy"]
-    processed_path = config["paths"]["samples"]["processed"]
+    noisy_path = path.abspath("./") + config["paths"]["samples"]["noisy"]
+    processed_path = path.abspath("./") + config["paths"]["samples"]["processed"]
 
     processed_imgs = listdir(processed_path)
     for img_file in processed_imgs:
