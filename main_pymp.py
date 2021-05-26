@@ -1,21 +1,21 @@
 """ Try to find best ruleset by running CA and using SFFS. """
 
+from image_processing.io import save_img
 import os
 from time import time
 
 import itertools as it
 import json
 from functools import reduce
-from multiprocessing import Pool
 from typing import Sequence
+
+import pymp
 
 import cv2 as cv
 import numpy as np
 from sklearn.metrics import mean_squared_error
 
-import logger
 from cellular_automaton import CellularAutomaton, EdgeRule, MooreNeighbourhood
-from image_processing import save_img
 from setup_samples import load_config
 
 
@@ -75,25 +75,6 @@ class ImageCA(CellularAutomaton):
             cell_n.neighbours = (None, )
 
 
-def configure_and_save(grid, rs):
-    hh = noisy.shape[0]
-    ww = noisy.shape[1]
-    ca_save = ImageCA([hh, ww], grid, rs)
-    keys = list(ca_save.cells.keys())
-    cells = list(ca_save.cells.values())
-    image = []
-
-    start = 0
-    row_size = w - 1
-
-    for row in range(h):
-        img_row = np.array([cell.state[0]
-                            for cell in cells[start:start + row_size]])
-        start = start + row_size + 1
-        image.append(img_row)
-    save_img("./results/", "result.jpg", np.asarray(image))
-
-
 def load_rules(rpath):
     """ Load rules from file. """
 
@@ -107,7 +88,7 @@ def load_rules(rpath):
 
 
 def compare_rmse(im_compare, im_predict):
-    """ Get RMSE of two images. Calculates the difference between two images """
+    """ Get RMSE of two images. """
 
     rmse = mean_squared_error(im_compare, im_predict)
     return rmse
@@ -158,8 +139,7 @@ def find_best(ruleset, added, img_compare, img_noisy):
 
 
 if __name__ == "__main__":
-    # region
-    thread_num = 4
+    thread_num = 1
 
     rules = load_rules("rules.json")
     rules = dict(list(rules.items())[:16])
@@ -182,20 +162,12 @@ if __name__ == "__main__":
     # Number of columns.
     w = noisy.shape[1]
 
-    logger.write_to_file("*"*50, log)
-    logger.write_to_file("Starting search.", log)
-    # endregion
-
     best_score = None
     best_ruleset = {}
 
     no_change = 0
     i = 0
-    while len(best_ruleset) < 5 or no_change < 10 or len(rules) > 100:
-        msg = f"Finding best ruleset. Number of rules: {len(rules)}"
-        print(msg)
-        logger.write_to_file(msg, log)
-
+    while len(best_ruleset) < 50 or no_change < 10 or len(rules) > 100:
         # Find rule with best score.
         previous_score = best_score
         previous_ruleset = best_ruleset
@@ -204,18 +176,21 @@ if __name__ == "__main__":
         reducer = get_best
 
         map_args = []
-
         for key in rules.keys():
             map_args.append(
                 ({**{key: rules[key]}, **best_ruleset},
                  key, img.copy(), noisy.copy())
             )
 
-        # mapped = it.starmap(mapper, map_args)
-
         begin = time()
-        with Pool(thread_num) as pool:
-            mapped = pool.starmap(mapper, map_args)
+        num_rules = len(map_args)
+        mapped = pymp.shared.list()
+        with pymp.Parallel(thread_num) as p:
+            for i in p.range(num_rules):
+                p.print(f'Thread started: {p.thread_num}')
+                got = find_best(*map_args[i])
+                mapped.append(got)
+                p.print(f'Thread ended: {p.thread_num}')
         end = time()
         print(end - begin)
         # input()
@@ -225,21 +200,17 @@ if __name__ == "__main__":
         # Second value indicates the ruleset that gave the best score.
         # Third value indicates added key to ruleset that gave the best score.
         best_score, best_ruleset, added_key = reduce(reducer, mapped)
+        print(f"Got best rule: {added_key}. Score: {best_score}")
 
-        msg = f"Got best rule: {added_key}. Score: {best_score}"
-        print(msg)
-        logger.write_to_file(msg, log)
+        # print("Ruleset:")
+        # for rule in best_ruleset: print(f"{rule}")
 
         # Remove best rule from possible rules to pick.
         rules.pop(added_key, None)
 
         # Check if it's the first iteration.
         if len(best_ruleset) > 1:
-            msg = "Running SFFS."
-            print(msg)
-            logger.write_to_file(msg, log)
-
-            # region
+            print("Running SFFS.")
             # Remove rules to check which provides with the best result.
             # If a rule removed is better than the previous best.
             best_ruleset_copies = [best_ruleset.copy()
@@ -250,43 +221,41 @@ if __name__ == "__main__":
             # Removing keys of each key.
             for pair in pairs:
                 del pair[0][pair[1]]
-            # endregion
 
             # Create map of arguments to apply to starmap.
             map_args = []
             for pair in pairs:
                 map_args.append((pair[0], pair[1], img, noisy))
 
-            with Pool(thread_num) as pool:
-                mapped = pool.starmap(mapper, map_args)
+            print('running')
+            mapped = pymp.shared.list()
+            best_rules_num = len(map_args)
+            with pymp.Parallel(thread_num) as p:
+                for i in p.range(best_rules_num):
+                    got = find_best(*map_args[i])
+                    mapped.append(got)
 
             removed_score, best_ruleset_removed, removed_key = reduce(
                 reducer, mapped)
+            ##
 
-            msg = f"Best key removed: {removed_key}. Removed score: {removed_score}."
-            print(msg)
-            logger.write_to_file(msg, log)
+            print(
+                f"Found. Best key removed: {removed_key}. Removed score: {removed_score}.")
 
             if removed_score < best_score:
                 best_ruleset = best_ruleset_removed
                 no_change = 0
 
-                msg = f"Removed score without {removed_key} is better.\nMoving on and replacing..."
-                print(msg)
-                logger.write_to_file(msg, log)
+                print("Removed score is better. Moving on and replacing...")
             else:
                 no_change += 1
-                msg = f"No change; no_change = {no_change}. Moving on..."
-                print(msg)
-                logger.write_to_file(msg, log)
+                print("No change. Moving on...")
                 continue
 
-        msg = f"best_ruleset: {best_ruleset}\nFinal score: {best_score}"
-        print(msg)
-        logger.write_to_file(msg, log)
+            print(f"Got ruleset: {best_ruleset}")
 
+        print(f"Final score: {best_score}")
+        
         print("Final best ruleset:")
-        for rule in best_ruleset.keys():
+        for rule in best_ruleset:
             print(f"{rule}")
-
-        # configure_and_save(noisy.copy(), best_ruleset)

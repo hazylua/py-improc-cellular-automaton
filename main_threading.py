@@ -7,6 +7,7 @@ import itertools as it
 import json
 from functools import reduce
 from multiprocessing import Pool
+import threading
 from typing import Sequence
 
 import cv2 as cv
@@ -122,9 +123,10 @@ def get_best(val1, val2):
         return val1
 
 
-def find_best(ruleset, added, img_compare, img_noisy):
+def find_best(ruleset, added, img_compare, img_noisy, results):
     """ Mapper. """
     print("Starting.")
+    lock = threading.Lock()
 
     # Number of rows.
     height = img_noisy.shape[0]
@@ -154,7 +156,20 @@ def find_best(ruleset, added, img_compare, img_noisy):
 
     print(f'Got: {ruleset_err} from {added}')
     _ca = None
-    return result
+
+    lock.acquire()
+    results.append(result)
+    lock.release()
+
+
+def chunks(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+
+def threader(items):
+    for item in items:
+        find_best(*item)
 
 
 if __name__ == "__main__":
@@ -191,7 +206,7 @@ if __name__ == "__main__":
 
     no_change = 0
     i = 0
-    while len(best_ruleset) < 5 or no_change < 10 or len(rules) > 100:
+    while len(best_ruleset) < 50 or no_change < 10 or len(rules) > 100:
         msg = f"Finding best ruleset. Number of rules: {len(rules)}"
         print(msg)
         logger.write_to_file(msg, log)
@@ -203,19 +218,23 @@ if __name__ == "__main__":
         mapper = find_best
         reducer = get_best
 
+        mapped = []
         map_args = []
 
         for key in rules.keys():
             map_args.append(
-                ({**{key: rules[key]}, **best_ruleset},
-                 key, img.copy(), noisy.copy())
-            )
+                ({**{key: rules[key]}, **best_ruleset}, key, img.copy(), noisy.copy(), mapped))
 
-        # mapped = it.starmap(mapper, map_args)
-
+        threads = []
+        chnks = list(chunks(map_args, 4))
         begin = time()
-        with Pool(thread_num) as pool:
-            mapped = pool.starmap(mapper, map_args)
+        for i in range(4):
+            thread = threading.Thread(target=threader, args=(chnks[i],))
+            threads.append(thread)
+            threads[i].start()
+
+        for thread in threads:
+            thread.join()
         end = time()
         print(end - begin)
         # input()
@@ -257,8 +276,16 @@ if __name__ == "__main__":
             for pair in pairs:
                 map_args.append((pair[0], pair[1], img, noisy))
 
-            with Pool(thread_num) as pool:
-                mapped = pool.starmap(mapper, map_args)
+            threads = []
+            chnks = list(chunks(map_args, 4))
+            print(len(chnks[0]))
+            for i in range(4):
+                thread = threading.Thread(target=threader, args=(chnks[i],))
+                print(len(chnks[i]))
+                threads.append(thread)
+                threads[i].start()
+            for thread in threads:
+                thread.join()
 
             removed_score, best_ruleset_removed, removed_key = reduce(
                 reducer, mapped)
