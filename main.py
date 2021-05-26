@@ -84,9 +84,8 @@ def load_rules(rpath):
             match_list[f'{ruleset[0]}'] = ruleset
     return match_list
 
-
 def compare_rmse(im_compare, im_predict):
-    """ Get RMSE of two images. """
+    """ Get RMSE of two images. Calculates the difference between two images """
 
     rmse = mean_squared_error(im_compare, im_predict)
     return rmse
@@ -137,6 +136,7 @@ def find_best(ruleset, added, img_compare, img_noisy):
 
 
 if __name__ == "__main__":
+    thread_num = 4
     rules = load_rules("rules.json")
 
     log = "log.txt"
@@ -156,23 +156,27 @@ if __name__ == "__main__":
     h = noisy.shape[0]
     # Number of columns.
     w = noisy.shape[1]
-
-    previous_score = None
-    best_ruleset = {}
-    no_change = 0
-    i = 0
-
+    
     logger.write_to_file("*"*50, log)
     logger.write_to_file("Starting search.", log)
-    while len(best_ruleset) < 100 or no_change < 10 or len(rules) > 100:
+
+    best_score = None
+    best_ruleset = {}
+
+    no_change = 0
+    i = 0
+    while len(best_ruleset) < 50 or no_change < 10 or len(rules) > 100:
         logger.write_to_file(
             f"Finding best ruleset. Number of rules: {len(rules)}", log)
         # Find rule with best score.
+        previous_score = best_score
+        previous_ruleset = best_ruleset
 
         mapper = find_best
         reducer = get_best
 
         map_args = []
+
         for key in rules.keys():
             map_args.append(
                 ({**{key: rules[key]}, **best_ruleset},
@@ -181,7 +185,7 @@ if __name__ == "__main__":
 
         # mapped = it.starmap(mapper, map_args)
 
-        with Pool(3) as pool:
+        with Pool(thread_num) as pool:
             mapped = pool.starmap(mapper, map_args)
 
         # Get best values in a list.
@@ -214,15 +218,17 @@ if __name__ == "__main__":
             for pair in pairs:
                 del pair[0][pair[1]]
 
+            ## Create map of arguments to apply to starmap.
             map_args = []
             for pair in pairs:
                 map_args.append((pair[0], pair[1], img, noisy))
 
-            with Pool(3) as pool:
+            with Pool(thread_num) as pool:
                 mapped = pool.starmap(mapper, map_args)
 
             removed_score, best_ruleset_removed, removed_key = reduce(
                 reducer, mapped)
+            ##
 
             print(
                 f"Found. Best key removed: {removed_key}. Removed score: {removed_score}.")
