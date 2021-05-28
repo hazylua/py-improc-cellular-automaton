@@ -164,8 +164,8 @@ if __name__ == "__main__":
     rules = load_rules("rules.json")
     rules = dict(list(rules.items())[:16])
 
-    log = "log.txt"
     settings = load_config("settings.json")
+    log = settings["paths"]["results"] + settings["paths"]["logs"]
     split_size = settings["split_size"]
     compare_path = settings["paths"]["samples"]["processed"]
     noisy_path = settings["paths"]["samples"]["noisy"]

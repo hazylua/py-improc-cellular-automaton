@@ -4,7 +4,7 @@
   "split_size": 254,
   "generations": 20,
   "paths": {
-    "logger": "log.txt",
+    "logs": "logs.txt",
     "results": "/results/",
     "samples": {
       "clean": "/samples/clean/",
