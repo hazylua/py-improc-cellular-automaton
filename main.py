@@ -156,9 +156,7 @@ def find_best(ruleset, added, img_compare, img_noisy):
     _ca = None
     return result
 
-
 if __name__ == "__main__":
-    # region
     thread_num = 4
 
     rules = load_rules("rules.json")
@@ -184,14 +182,13 @@ if __name__ == "__main__":
 
     logger.write_to_file("*"*50, log)
     logger.write_to_file("Starting search.", log)
-    # endregion
 
     best_score = None
     best_ruleset = {}
 
     no_change = 0
     i = 0
-    while len(best_ruleset) < 5 or no_change < 10 or len(rules) > 100:
+    while len(best_ruleset) < 5 or no_change < 100 or len(rules) > 100:
         msg = f"Finding best ruleset. Number of rules: {len(rules)}"
         print(msg)
         logger.write_to_file(msg, log)
@@ -204,7 +201,6 @@ if __name__ == "__main__":
         reducer = get_best
 
         map_args = []
-
         for key in rules.keys():
             map_args.append(
                 ({**{key: rules[key]}, **best_ruleset},
@@ -213,12 +209,8 @@ if __name__ == "__main__":
 
         # mapped = it.starmap(mapper, map_args)
 
-        begin = time()
         with Pool(thread_num) as pool:
             mapped = pool.starmap(mapper, map_args)
-        end = time()
-        print(end - begin)
-        # input()
 
         # Get best values in a list.
         # First value indicates the score.
@@ -226,33 +218,28 @@ if __name__ == "__main__":
         # Third value indicates added key to ruleset that gave the best score.
         best_score, best_ruleset, added_key = reduce(reducer, mapped)
 
+        # Remove best rule from possible rules to pick.
+        rules.pop(added_key, None)
+
         msg = f"Got best rule: {added_key}. Score: {best_score}"
         print(msg)
         logger.write_to_file(msg, log)
 
-        # Remove best rule from possible rules to pick.
-        rules.pop(added_key, None)
-
         # Check if it's the first iteration.
         if len(best_ruleset) > 1:
-            msg = "Running SFFS."
+            msg = "Checking set."
             print(msg)
             logger.write_to_file(msg, log)
 
-            # region
-            # Remove rules to check which provides with the best result.
-            # If a rule removed is better than the previous best.
+            # Get copies of best_ruleset, attach a key to remove with each and remove the key paired with it.
             best_ruleset_copies = [best_ruleset.copy()
                                    for _ in range(len(best_ruleset))]
             best_ruleset_keys = best_ruleset.keys()
-            # Copy of best_ruleset with each copy having a key removed to check which key removed gives the best value.
             pairs = list(zip(best_ruleset_copies, best_ruleset_keys))
-            # Removing keys of each key.
             for pair in pairs:
                 del pair[0][pair[1]]
-            # endregion
 
-            # Create map of arguments to apply to starmap.
+            # Map of arguments for starmap.
             map_args = []
             for pair in pairs:
                 map_args.append((pair[0], pair[1], img, noisy))
