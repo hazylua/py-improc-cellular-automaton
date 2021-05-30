@@ -11,7 +11,8 @@ from typing import Sequence
 
 import cv2 as cv
 import numpy as np
-from sklearn.metrics import mean_squared_error
+from skimage.metrics import mean_squared_error as mse
+from skimage.metrics import structural_similarity as ssim
 
 import logger
 from cellular_automaton import CellularAutomaton, EdgeRule, MooreNeighbourhood
@@ -106,17 +107,18 @@ def load_rules(rpath):
     return match_list
 
 
-def compare_rmse(im_compare, im_predict):
+def compare_ssim(im_compare, im_predict):
     """ Get RMSE of two images. Calculates the difference between two images """
 
-    rmse = mean_squared_error(im_compare, im_predict)
-    return rmse
+    im_mse = mse(im_compare, im_predict)
+    im_ssim = ssim(im_compare, im_predict)
+    return im_ssim
 
 
 def get_best(val1, val2):
     """ Reducer. """
 
-    if val1[0] > val2[0]:
+    if val1[0] < val2[0]:
         return val2
     else:
         return val1
@@ -148,7 +150,7 @@ def find_best(ruleset, added, img_compare, img_noisy):
 
     _predicted = np.asarray(_img_proc, dtype=np.uint8)
 
-    ruleset_err = compare_rmse(img_compare, _predicted)
+    ruleset_err = compare_ssim(img_compare, _predicted)
 
     result = [ruleset_err, ruleset, added]
 
@@ -182,10 +184,12 @@ if __name__ == "__main__":
     compare_path = settings["paths"]["samples"]["processed"]
     noisy_path = settings["paths"]["samples"]["noisy"]
 
+    msg = ("#" * 10) + "STARTING PROGRAM" + ("#" * 10)
+    logger.write_to_file(msg, log)
+
     img_files = load_images(compare_path, noisy_path)
     for img_file in img_files:
         msg = f"Loaded {img_file}."
-        print(msg)
         logger.write_to_file(msg, log)
 
         img = img_files[img_file]['compare_img']
@@ -196,18 +200,17 @@ if __name__ == "__main__":
         # Number of columns.
         w = noisy.shape[1]
 
-        msg = ("*" * 50) + f"\nStarting search."
-        print(msg)
+        msg = f"\nStarting search."
         logger.write_to_file(msg, log)
 
+        removed_value = None
         best_score = None
         best_ruleset = {}
 
         no_change = 0
         i = 0
-        while len(best_ruleset) < 5 or no_change < 100 or len(rules) > 100:
+        while len(best_ruleset) < 10 or no_change < 100 or len(rules) > 100:
             msg = f"Finding best ruleset. Number of rules: {len(rules)}"
-            print(msg)
             logger.write_to_file(msg, log)
 
             # Find rule with best score.
@@ -224,8 +227,6 @@ if __name__ == "__main__":
                     key, img.copy(), noisy.copy())
                 )
 
-            # mapped = it.starmap(mapper, map_args)
-
             with Pool(thread_num) as pool:
                 mapped = pool.starmap(mapper, map_args)
 
@@ -238,14 +239,12 @@ if __name__ == "__main__":
             # Remove best rule from possible rules to pick.
             rules.pop(added_key, None)
 
-            msg = f"Got best rule: {added_key}. Score: {best_score}"
-            print(msg)
+            msg = f"Got best rule: {added_key}. Score: {best_score}; Best ruleset: {list(best_ruleset.keys())}"
             logger.write_to_file(msg, log)
 
             # Check if it's the first iteration.
             if len(best_ruleset) > 1:
                 msg = "Checking set."
-                print(msg)
                 logger.write_to_file(msg, log)
 
                 # Get copies of best_ruleset, attach a key to remove with each and remove the key paired with it.
@@ -257,40 +256,37 @@ if __name__ == "__main__":
                     del pair[0][pair[1]]
 
                 # Map of arguments for starmap.
-                map_args = []
+                check_map_args = []
                 for pair in pairs:
-                    map_args.append((pair[0], pair[1], img, noisy))
+                    check_map_args.append((pair[0], pair[1], img, noisy))
 
                 with Pool(thread_num) as pool:
-                    mapped = pool.starmap(mapper, map_args)
+                    mapped = pool.starmap(mapper, check_map_args)
 
                 removed_score, best_ruleset_removed, removed_key = reduce(
                     reducer, mapped)
 
                 msg = f"Best key removed: {removed_key}. Removed score: {removed_score}."
-                print(msg)
                 logger.write_to_file(msg, log)
 
-                if removed_score < best_score:
+                if removed_score > best_score:
                     best_ruleset = best_ruleset_removed
                     no_change = 0
 
                     msg = f"Removed score without {removed_key} is better.\nMoving on and replacing..."
-                    print(msg)
                     logger.write_to_file(msg, log)
                 else:
                     no_change += 1
                     msg = f"No change; no_change = {no_change}. Moving on..."
-                    print(msg)
                     logger.write_to_file(msg, log)
-                    continue
 
-            msg = f"best_ruleset: {best_ruleset}\nFinal score: {best_score}"
-            print(msg)
+            msg = f"best_ruleset: {best_ruleset.keys()}\nFinal score: {best_score}"
             logger.write_to_file(msg, log)
 
-            print("Final best ruleset:")
-            for rule in best_ruleset.keys():
-                print(f"{rule}")
+            if(len(best_ruleset) > 2):
+                configure_and_save(noisy.copy(), best_ruleset)
 
-            # configure_and_save(noisy.copy(), best_ruleset)
+        print("Final best ruleset:")
+        for rule in best_ruleset.keys():
+            print(f"{rule}")
+
