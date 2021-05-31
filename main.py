@@ -79,15 +79,16 @@ class ImageCA(CellularAutomaton):
 def configure_and_save(grid, rs):
     hh = noisy.shape[0]
     ww = noisy.shape[1]
-    ca_save = ImageCA([hh, ww], grid, rs)
+    ca_save = ImageCA([hh, ww], grid, {})
+    ca_save.evolve(times=100)
     keys = list(ca_save.cells.keys())
     cells = list(ca_save.cells.values())
     image = []
 
     start = 0
-    row_size = w - 1
+    row_size = ww - 1
 
-    for row in range(h):
+    for row in range(hh):
         img_row = np.array([cell.state[0]
                             for cell in cells[start:start + row_size]])
         start = start + row_size + 1
@@ -111,7 +112,8 @@ def compare_ssim(im_compare, im_predict):
     """ Get RMSE of two images. Calculates the difference between two images """
 
     im_mse = mse(im_compare, im_predict)
-    im_ssim = ssim(im_compare, im_predict)
+    #im_ssim = ssim(im_compare, im_compare, data_range=im_compare.max() - im_compare.min())
+    im_ssim = ssim(im_compare, im_predict, data_range=im_predict.max() - im_predict.min())
     return im_ssim
 
 
@@ -135,7 +137,7 @@ def find_best(ruleset, added, img_compare, img_noisy):
 
     _ca = ImageCA(dimension=[height, width],
                   image=img_noisy.tolist(), ruleset=ruleset)
-    _ca.evolve(times=10)
+    _ca.evolve(times=100)
 
     _cells = [cell.state[0] for cell in _ca.cells.values()]
 
@@ -176,7 +178,11 @@ if __name__ == "__main__":
     thread_num = 4
 
     rules = load_rules("rules.json")
-    rules = dict(list(rules.items())[:16])
+    # rules = dict(list(rules.items())[:16])
+    # mine = {'[0, 0, 0, 0, 0, 0, 0, 0]': [[0, 0, 0, 0, 0, 0, 0, 0]],
+    # '[2, 2, 2, 2, 2, 2, 2, 2]': [[0, 0, 0, 0, 0, 0, 0, 0]]}
+
+    input()
 
     settings = load_config("settings.json")
     log = settings["paths"]["results"] + settings["paths"]["logs"]
@@ -283,8 +289,7 @@ if __name__ == "__main__":
             msg = f"best_ruleset: {best_ruleset.keys()}\nFinal score: {best_score}"
             logger.write_to_file(msg, log)
 
-            if(len(best_ruleset) > 2):
-                configure_and_save(noisy.copy(), best_ruleset)
+            configure_and_save(noisy.copy(), best_ruleset)
 
         print("Final best ruleset:")
         for rule in best_ruleset.keys():
