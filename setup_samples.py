@@ -29,7 +29,7 @@ def save_noisy(config):
     processed_imgs = listdir(processed_path)
     for img_file in processed_imgs:
         img_noisy = improc.read_preprocess(
-            processed_path + img_file, noise="salt_pepper", rate=0.009)
+            processed_path + img_file, noise="salt_pepper", rate=0.09)
         improc.save_img(noisy_path, f"{img_file}", img_noisy)
 
 
