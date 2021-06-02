@@ -91,6 +91,8 @@ def configure_and_save(grid, rs, filename):
         image_row = np.array( [ cell.state[0] for cell in cells[row:row + w] ] )
         image.append(image_row)
 
+    save_img("./results/", filename, np.asarray(image))
+
 
 def load_images(c_path, n_path):
     abspath_compare = os.path.abspath("./") + c_path
@@ -213,7 +215,63 @@ def check(img, noisy, rules, file):
         best_score, best_ruleset, added_key = reduce(reducer, mapped)
 
         if previous_score != None and previous_score > best_score:
-            msg = f"Old score is better. Checking set."
+            msg = (
+                f"Previous score is better. Checking set.\n"
+                f"Previous score: {previous_score}; current \"best\" score: {best_score}\n"
+            )
+            logger.write_to_file(msg, log)
+
+            # Remove rule one by one to check if removing one gives a better score.
+            best_ruleset_copies = [best_ruleset.copy()
+                                    for _ in range(len(best_ruleset))]
+            best_ruleset_keys = best_ruleset.keys()
+            pairs = list(zip(best_ruleset_copies, best_ruleset_keys))
+            for pair in pairs:
+                    del pair[0][pair[1]]
+
+            check_map_args = []
+            for pair in pairs:
+                check_map_args.append((pair[0], pair[1], img, noisy))
+
+            with Pool(thread_num) as pool:
+                    mapped = pool.starmap(mapper, check_map_args)
+            
+            removed_score, best_ruleset_removed, removed_key = reduce(reducer, mapped)
+
+            msg = f"Best key removed: {removed_key}. Removed score: {removed_score}."
+            logger.write_to_file(msg, log)
+
+            # If best "removed" score is better than previous score, continue with removed score.
+            if removed_score > previous_score:
+                best_ruleset = best_ruleset_removed
+                no_change = 0
+
+                msg = f"Removed score without {removed_key} is better than previous score.\nReplacing and moving on."
+                logger.write_to_file(msg, log)
+            
+            # Else continue with previous score and remove key from mapped to make it easier to check again (no need to run CA all over again), since it's the same ruleset as before and we already have the results.
+            else:
+                msg = f"Removed score without {removed_key} is NOT better than previous score.\nRemoving key from list of values gotten from running CA: {added_key}."
+                logger.write_to_file(msg, log)
+
+                to_remove = [best_score, best_ruleset, added_key]
+
+                best_ruleset = previous_ruleset
+                best_score = previous_score
+                mapped.remove(to_remove)
+
+                # Remove best rule from possible rules to pick.
+                rules.pop(added_key, None)
+                no_change = 1
+
+        else:
+            msg = (
+                f"Current \"best\" ruleset is better.\n" 
+                f"Best rule: {added_key}. Score: {best_score};"
+            )
+            logger.write_to_file(msg, log)
+
+            msg = f"Checking set."
             logger.write_to_file(msg, log)
 
             best_ruleset_copies = [best_ruleset.copy()
@@ -234,38 +292,29 @@ def check(img, noisy, rules, file):
 
             msg = f"Best key removed: {removed_key}. Removed score: {removed_score}."
             logger.write_to_file(msg, log)
-            if removed_score > previous_score:
+            if removed_score > best_score:
                 best_ruleset = best_ruleset_removed
-                no_change = 0
-                msg = f"Removed score without {removed_key} is better than old score.\nReplacing and moving on."
+
+                msg = f"Removed score without {removed_key} is better than old score.\nReplacing and moving on.\n"
                 logger.write_to_file(msg, log)
-            
             else:
-                to_remove = [best_score, best_ruleset, added_key]
+                msg = f"Removed score without {removed_key} is NOT better than previous score.\n"
+                logger.write_to_file(msg, log)
 
-                best_ruleset = previous_ruleset
-                best_score = previous_score
-                mapped.remove(to_remove)
+            formatted_dict = ""
+            for key, value in best_ruleset.items():
+                formatted_dict += f"{key}: {value}\n"
 
-                # Remove best rule from possible rules to pick.
-                rules.pop(added_key, None)
-                no_change = 1
-
-        else:
-            msg = f"Got best rule: {added_key}. Score: {best_score}; Best ruleset: {list(best_ruleset.keys())}"
+            msg = f"Current best ruleset:\n{best_ruleset}\n" + ("+" * 20)
             logger.write_to_file(msg, log)
 
             rules.pop(added_key, None)
             no_change = 0
 
-        # msg = f"Got best rule: {added_key}. Score: {best_score}; Best ruleset: {list(best_ruleset.keys())}"
-        # logger.write_to_file(msg, log)
-
-
-        # msg = f"best_ruleset: {best_ruleset.keys()}\nFinal score: {best_score}"
-        # logger.write_to_file(msg, log)
-
         configure_and_save(noisy.copy(), best_ruleset, file)
+
+    msg = f"Finished.\nBest ruleset: {best_ruleset}."
+    logger.write_to_file(msg, log)
 
     print("Final best ruleset:")
     for rule in best_ruleset.keys():
@@ -273,14 +322,14 @@ def check(img, noisy, rules, file):
 
 def run():
 
-    msg = ("#" * 10) + "STARTING PROGRAM" + ("#" * 10)
+    msg = "\n\n\n" + ("#" * 10) + "STARTING PROGRAM" + ("#" * 10) + "\n\n\n"
     logger.write_to_file(msg, log)
 
     # Go through all images
     img_files = load_images(compare_path, noisy_path)
     for img_file in img_files:
         rules = load_rules("rules.json")
-        rules = dict(list(rules.items())[:2])
+        # rules = dict(list(rules.items())[:2])
 
         msg = f"Loaded {img_file}."
         logger.write_to_file(msg, log)
