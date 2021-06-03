@@ -147,24 +147,24 @@ def find_best(ruleset, added, img_compare, img_noisy):
     # Number of columns.
     width = img_noisy.shape[1]
 
-    _ca = ImageCA(dimension=[height, width],
+    cellular_automaton = ImageCA(dimension=[height, width],
                   image=img_noisy.tolist(), ruleset=ruleset)
-    _ca.evolve(times=100)
+    cellular_automaton.evolve(times=100)
 
-    _cells = [cell.state[0] for cell in _ca.cells.values()]
+    cells = [cell.state[0] for cell in cellular_automaton.cells.values()]
 
-    _start = 0
-    _row_size = width
+    start = 0
+    row_size = width
 
-    _img_proc = []
+    img_evolved = []
     for _row in range(height):
-        _img_row = [cell for cell in _cells[_start:_start + _row_size]]
-        _start = _start + _row_size
-        _img_proc.append(_img_row)
+        _img_row = [cell for cell in cells[start:start + row_size]]
+        start = start + row_size
+        img_evolved.append(_img_row)
 
-    _predicted = np.asarray(_img_proc, dtype=np.uint8)
+    img_evolved = np.asarray(img_evolved, dtype=np.uint8)
 
-    ruleset_err = compare_ssim(img_compare, _predicted)
+    ruleset_err = compare_ssim(img_compare, img_evolved)
 
     # Get best values in a list.
     # First value indicates the score.
@@ -173,7 +173,8 @@ def find_best(ruleset, added, img_compare, img_noisy):
     result = [ruleset_err, ruleset, added]
 
     print(f'Got: {ruleset_err} from {added}')
-    _ca = None
+    cellular_automaton = None
+
     return result
 
 def check(img, noisy, rules, file):
@@ -321,7 +322,6 @@ def check(img, noisy, rules, file):
         print(f"{rule}")
 
 def run():
-
     msg = "\n\n\n" + ("#" * 10) + "STARTING PROGRAM" + ("#" * 10) + "\n\n\n"
     logger.write_to_file(msg, log)
 
