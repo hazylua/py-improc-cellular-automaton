@@ -81,7 +81,7 @@ def configure_and_save(grid, rs, filename):
 
     ca_dimension = [h, w]
     ca_save = ImageCA(ca_dimension, grid, rs)
-    ca_save.evolve(times=1)
+    ca_save.evolve(times=100)
 
     keys = list(ca_save.cells.keys())
     cells = list(ca_save.cells.values())
@@ -195,7 +195,7 @@ def check(img, noisy, rules, file):
     no_change = 0
     i = 0
 
-    while len(rules) != 0:
+    while len(rules) != 0 and len(best_ruleset) < 10:
         msg = f"Finding best ruleset. Number of rules: {len(rules)}"
         logger.write_to_file(msg, log)
 
