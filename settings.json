@@ -14,7 +14,7 @@
   },
   "process": {
     "resize": true,
-    "height_max": 500,
-    "width_max": 500
+    "height_max": 1000,
+    "width_max": 1000
   }
 }
