@@ -11,6 +11,7 @@ def read_preprocess(img_path, resize=False, height_resize=None, width_resize=Non
 
     print('Pre-processing...')
     img = cv.imread(img_path)
+    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     
     if(resize):
         img = image_resize(img, height=height_resize, width=width_resize)
@@ -19,7 +20,6 @@ def read_preprocess(img_path, resize=False, height_resize=None, width_resize=Non
     if(noise):
         img = add_noise(img, noise, rate=rate)
         
-    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
     print('Image loaded.')
     return img
