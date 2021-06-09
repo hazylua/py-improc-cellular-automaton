@@ -1,39 +1,52 @@
 """ Generate images to process and compare. """
 
 import json
-from os import listdir, path
+from os import path, walk
 import image_processing as improc
 
 
 def save_configured():
-    clean_imgs = listdir(clean_path)
+    for root, dirs, files in walk(clean_path, topdown=False):
+        for img_file in files:
+            proc_path = path.join(root, img_file)
+            proc_path = path.normpath(proc_path)
+            print(proc_path)
+            img_configured = improc.read_preprocess(
+                proc_path, resize=resize, height_resize=height_max, width_resize=width_max)
 
-    for img_file in clean_imgs:
-        print(img_file)
-        img_configured = improc.read_preprocess(
-            clean_path + img_file, resize=resize, height_resize=height_max, width_resize=width_max)
-        improc.save_img(
-            processed_path, f"{img_file}", img_configured)
+            img_file_no_suffix = path.splitext(img_file)[0]
+            improc.save_img(
+                processed_path, f"{img_file_no_suffix}.jpg", img_configured)
 
 
 def save_noisy():
-    processed_imgs = listdir(processed_path)
+    salt_pepper_rates = [0.05, 0.25, 0.50, 0.75, 0.95]
+    gaussian_sigmas = [0.5, 0.6, 0.7, 0.8, 0.9]
 
-    salt_pepper = []
-    gaussian = []
-    for img_file in processed_imgs:
-        img_salt_pepper = improc.read_preprocess(
-            processed_path + img_file, noise="salt_pepper", rate=0.09)
-        salt_pepper.append(img_salt_pepper)
-        img_gaussian = improc.read_preprocess(
-            processed_path + img_file, noise="gaussian", rate=0.1)
-        gaussian.append(img_gaussian)
+    for root, dirs, files in walk(processed_path, topdown=False):
+        for img_file in files:
+            proc_path = path.join(root, img_file)
+            proc_path = path.normpath(proc_path)
+            print(img_file)
+            input()
 
-    for idx, img_file in enumerate(processed_imgs):
-        improc.save_img(noisy_path + 'salt_pepper/',
-                        f"{img_file}", salt_pepper[idx])
-        improc.save_img(noisy_path + 'gaussian/',
-                        f"{img_file}", gaussian[idx])
+            for st_rate in salt_pepper_rates:
+                img_salt_pepper = improc.read_preprocess(
+                    proc_path, noise="salt_pepper", rate=st_rate)
+
+                st_rate_path = str(st_rate).replace('.', '_')
+                save_path = path.join(noisy_path, 'salt_pepper', st_rate_path)
+                print(save_path)
+                input()
+                improc.save_img(save_path, img_file, img_salt_pepper)
+
+            for sigma in gaussian_sigmas:
+                img_gaussian = improc.read_preprocess(
+                    proc_path, noise="gaussian", rate=sigma)
+
+                sigma_path = str(sigma).replace('.', '_')
+                save_path = path.join(noisy_path, 'gaussian', sigma_path)
+                improc.save_img(save_path, img_file, img_gaussian)
 
 
 def load_config(path):
@@ -52,10 +65,12 @@ if __name__ == '__main__':
 
     processed_path = path.abspath(
         "./") + config["paths"]["samples"]["processed"]
-    clean_path = path.abspath("./") + config["paths"]["samples"]["clean"]
-    noisy_path = path.abspath("./") + config["paths"]["samples"]["noisy"]
-    processed_path = path.abspath(
-        "./") + config["paths"]["samples"]["processed"]
+    clean_path = path.normpath(path.abspath(
+        "./") + config["paths"]["samples"]["clean"])
+    noisy_path = path.normpath(path.abspath(
+        "./") + config["paths"]["samples"]["noisy"])
+    processed_path = path.normpath(path.abspath(
+        "./") + config["paths"]["samples"]["processed"])
 
-    save_configured()
+    # save_configured()
     save_noisy()
