@@ -3,9 +3,10 @@ import cv2 as cv
 def image_resize(img, width=None, height=None, inter=cv.INTER_AREA):
     """ Resizes image keeping aspect ratio. """
     
-    dim = None
+    
     [h, w] = img.shape[:2]
-    print(h, w)
+    dim = (h, w)
+    # print(h, w)
     if width is None and height is None:
         return img
     if height is not None and height < h:
