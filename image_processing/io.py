@@ -1,3 +1,5 @@
+from os import path, write
+
 import numpy as np
 import cv2 as cv
 from file_processing import check_dir
@@ -11,15 +13,14 @@ def read_preprocess(img_path, resize=False, height_resize=None, width_resize=Non
 
     print('Pre-processing...')
     img = cv.imread(img_path)
-    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    
+    img = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
+
     if(resize):
         img = image_resize(img, height=height_resize, width=width_resize)
 
     # Ex.: "salt_pepper"
     if(noise):
         img = add_noise(img, noise, rate=rate)
-        
 
     print('Image loaded.')
     return img
@@ -31,8 +32,9 @@ def save_img(dir_path, file_name, img):
     print('Saving image...')
     if check_dir(dir_path, make_dir=True):
         try:
-            cv.imwrite(f'{dir_path + file_name}', np.float32(img))
-            print(f'Image saved successfully at: {dir_path + file_name}')
+            write_path = path.join(dir_path, file_name)
+            cv.imwrite(write_path, np.float32(img))
+            print(f'Image saved successfully at: {write_path}')
         except Exception as e:
             print(f'Failed to save to {file_name}.\nReason: {e}')
             return False
