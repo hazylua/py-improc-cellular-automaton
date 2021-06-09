@@ -1,9 +1,10 @@
-from os import listdir, path, unlink, mkdir
+from os import listdir, path, unlink, makedirs
 from shutil import rmtree
+
 
 def clear_dir(dir_path):
     """ Clear directory. """
-    
+
     print(f'Clearing path: {dir_path}')
     if check_dir(dir_path, make_dir=False):
         if(len(listdir(dir_path)) == 0):
@@ -20,21 +21,22 @@ def clear_dir(dir_path):
                 except Exception as e:
                     print(f'Failed to delete {file_path}. Reason {e}')
 
+
 def check_dir(dir_path, make_dir):
     """ Check if directory exists. """
-    
+
     print(f'Checking if path \"{dir_path}\" exists...')
     if path.exists(dir_path):
         print('This path exists.')
         return True
-    elif make_dir == True:
+    elif make_dir:
         try:
             print('This path does not exist. Creating it now.')
-            mkdir(dir_path)
+            makedirs(dir_path)
             return True
         except Exception as e:
             print(f'Failed to create {dir_path}.\nReason: {e}')
-            return False
+            exit
     else:
         print('This path does not exist.')
         return False
