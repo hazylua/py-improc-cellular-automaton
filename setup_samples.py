@@ -20,15 +20,13 @@ def save_configured():
 
 
 def save_noisy():
-    salt_pepper_rates = [0.05, 0.25, 0.50, 0.75, 0.95]
-    gaussian_sigmas = [0.5, 0.6, 0.7, 0.8, 0.9]
+    salt_pepper_rates = [0.05, 0.25, 0.50]
+    gaussian_sigmas = [0.5, 0.9]
 
     for root, dirs, files in walk(processed_path, topdown=False):
         for img_file in files:
             proc_path = path.join(root, img_file)
             proc_path = path.normpath(proc_path)
-            print(img_file)
-            input()
 
             for st_rate in salt_pepper_rates:
                 img_salt_pepper = improc.read_preprocess(
@@ -36,8 +34,6 @@ def save_noisy():
 
                 st_rate_path = str(st_rate).replace('.', '_')
                 save_path = path.join(noisy_path, 'salt_pepper', st_rate_path)
-                print(save_path)
-                input()
                 improc.save_img(save_path, img_file, img_salt_pepper)
 
             for sigma in gaussian_sigmas:
@@ -63,8 +59,6 @@ if __name__ == '__main__':
     height_max = config["process"]["height_max"]
     width_max = config["process"]["width_max"]
 
-    processed_path = path.abspath(
-        "./") + config["paths"]["samples"]["processed"]
     clean_path = path.normpath(path.abspath(
         "./") + config["paths"]["samples"]["clean"])
     noisy_path = path.normpath(path.abspath(
