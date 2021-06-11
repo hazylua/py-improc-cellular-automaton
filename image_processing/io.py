@@ -11,7 +11,7 @@ from .transformation import image_resize
 def read_preprocess(img_path, resize=False, height_resize=None, width_resize=None, noise=False, rate=0.005):
     """ Image pre-processing routine. """
 
-    print('Pre-processing...')
+    # print('Pre-processing...')
     img = cv.imread(img_path)
     img = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
 
@@ -29,7 +29,7 @@ def read_preprocess(img_path, resize=False, height_resize=None, width_resize=Non
 def save_img(dir_path, file_name, img):
     """ Saves image and checks for save location. """
 
-    print('Saving image...')
+    # print('Saving image...')
     if check_dir(dir_path, make_dir=True):
         try:
             write_path = path.join(dir_path, file_name)

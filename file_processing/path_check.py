@@ -1,4 +1,4 @@
-from os import listdir, path, unlink, makedirs
+from os import listdir, path, unlink, makedirs, walk
 from shutil import rmtree
 
 
@@ -40,3 +40,9 @@ def check_dir(dir_path, make_dir):
     else:
         print('This path does not exist.')
         return False
+
+def get_list_of_files(dir_path):
+    files_list = []
+    for root, dirs, files in walk(dir_path):
+        files_list += [file for file in files]
+    return files_list
