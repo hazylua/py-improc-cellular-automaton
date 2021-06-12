@@ -161,13 +161,17 @@ def run_comparisons():
 
 def run_test():
     sample = cv.imread(
-        "./samples/noisy/salt_pepper/0_5/sat_urban_farther_normal_1.jpg", cv.IMREAD_GRAYSCALE)
+        "./test2.png", cv.IMREAD_GRAYSCALE)
+    result = sample.copy()
+    timelapse = sample.copy()
 
-    result = ca_filter(sample, 10)
-    # result = ndimage.gaussian_filter(sample, 1)
-    # result = ndimage.median_filter(sample, size=5)
-    print(get_comparisons(sample, result))
-    plt.imshow(result, cmap="gray")
+    for _ in range(10):
+        result = ca_filter(result, 1)
+        timelapse = np.concatenate((timelapse, result), axis=1)
+        print(get_comparisons(sample, result))
+        # result = ndimage.gaussian_filter(sample, 1)
+        # result = ndimage.median_filter(sample, size=5)
+    plt.imshow(timelapse, cmap="gray")
     plt.show()
 
 
