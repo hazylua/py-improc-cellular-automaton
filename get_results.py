@@ -132,12 +132,14 @@ def run_comparisons():
 
             result = improc.read_preprocess(img_file_root)
 
-            noisy_compare_path = path.join(
-                noisy_path, noise_type, noise_rate, img_file)
-            noisy = improc.read_preprocess(noisy_compare_path)
+            compare_path = path.join(
+                processed_path, img_file)
+            # noisy_compare_path = path.join(
+            #     noisy_path, noise_type, noise_rate, img_file)
+            compare = improc.read_preprocess(compare_path)
 
             # print(filter_type, noise_type, noise_rate, variable)
-            result_mse, result_ssim = get_comparisons(noisy, result)
+            result_mse, result_ssim = get_comparisons(compare, result)
             result_mse = round(result_mse, 4)
             result_ssim = round(result_ssim, 4)
             print(result_mse, result_ssim)
