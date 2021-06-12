@@ -47,7 +47,7 @@ class CAImageFilter(CellularAutomaton):
         if new_cell_state[0] < max_neighbour and new_cell_state[0] > min_neighbour:
             return new_cell_state
 
-        elif max_neighbour == min_neighbour or num_states_neighbours <= 2:
+        elif max_neighbour == min_neighbour or num_states_neighbours == 2:
             if min_neighbour != 0:
                 return [min_neighbour]
             elif max_neighbour != 255:
