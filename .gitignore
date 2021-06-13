@@ -8,10 +8,3 @@ reminder
 # Python
 __pycache__
 .spyproject
-
-# Results
-results/
-rules.json
-wait
-log.txt
-*.exe
