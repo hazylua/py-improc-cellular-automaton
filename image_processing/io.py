@@ -22,7 +22,7 @@ def read_preprocess(img_path, resize=False, height_resize=None, width_resize=Non
     if(noise):
         img = add_noise(img, noise, rate=rate)
 
-    print('Image loaded.')
+    # print('Image loaded.')
     return img
 
 
