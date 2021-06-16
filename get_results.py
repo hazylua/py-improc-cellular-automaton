@@ -1,19 +1,21 @@
+""" Run file and get results from menu. """
+
+from cellular_automaton.models import CAImageFilterMedian
+import sys
 from os import path, walk
 
 import cv2 as cv
 import numpy as np
 import pandas as pd
-
+from matplotlib import pyplot as plt
 from scipy import ndimage
-from skimage.metrics import structural_similarity as ssim
 from skimage.metrics import mean_squared_error as mse
+from skimage.metrics import structural_similarity as ssim
 
 import image_processing as improc
 from cellular_automaton import CAImageFilter
-from setup_samples import load_config
 from file_processing import clear_dir, get_list_of_files
-
-from matplotlib import pyplot as plt
+from setup_samples import load_config
 
 
 def get_comparisons(im_compare, im_predict):
@@ -73,17 +75,55 @@ def run():
             ca_filtered = ca_filter(img, gens)
             improc.save_img(ca_result_path, img_file, ca_filtered)
 
-            # Gaussian filter
-            sigma_filter = 1
-            ca_result_path = path.join(
-                results_path, 'gaussian_filter', type, rate, str(sigma_filter))
-            gaussian_filtered = ndimage.gaussian_filter(img, sigma_filter)
 
-            # Median filter
-            median_size = 5
+def ca_filter_median(grid, gens):
+    h = grid.shape[0]
+    w = grid.shape[1]
+
+    ca_dimension = [h, w]
+
+    empty_ruleset = {}
+    ca_save = CAImageFilterMedian(ca_dimension, grid, empty_ruleset)
+
+    print("Generations: ", gens)
+    ca_save.evolve(gens)
+
+    keys = list(ca_save.cells.keys())
+    cells = list(ca_save.cells.values())
+
+    image = []
+    for row in range(0, len(keys), w):
+        image_row = np.array([cell.state[0]
+                              for cell in cells[row:row + w]])
+        image.append(image_row)
+    image = np.asarray(image)
+
+    # save_gen_path = path.join(save_path, str(gens))
+    # improc.save_img(save_gen_path, filename, image)
+    # comparisons.append(get_comparisons(grid, image))
+
+    ca_save = None
+    return image
+
+
+def run_ca_median():
+    gens = int(input("Generations of CA: "))
+
+    for root, dirs, files in walk(noisy_path, topdown=False):
+        for img_file in files:
+            img_file_root = path.join(root, img_file)
+            img_file_root = path.normpath(img_file_root)
+
+            filter_type = path.basename(path.abspath(path.join(root, '..')))
+            rate = path.basename(root)
+
+            img = improc.read_preprocess(img_file_root)
+
+            # CA median filter
             ca_result_path = path.join(
-                results_path, 'median_fitler', type, rate, str(sigma_filter))
-            median_filtered = ndimage.median_filter(img, size=median_size)
+                results_path, 'ca_median', filter_type, rate, str(gens))
+            ca_filtered = ca_filter_median(img, gens)
+            improc.save_img(ca_result_path, img_file, ca_filtered)
 
 
 def run_filters():
@@ -93,25 +133,29 @@ def run_filters():
             img_file_root = path.join(root, img_file)
             img_file_root = path.normpath(img_file_root)
 
-            type = path.basename(path.abspath(path.join(root, '..')))
+            noise_type = path.basename(path.abspath(path.join(root, '..')))
             rate = path.basename(root)
 
             img = improc.read_preprocess(img_file_root)
 
             # Gaussian filter
-            sigma_filter = 1
-            gaussian_result_path = path.join(
-                results_path, 'gaussian_filter', type, rate, str(sigma_filter))
-            gaussian_filtered = ndimage.gaussian_filter(
-                img, sigma=sigma_filter)
-            improc.save_img(gaussian_result_path, img_file, gaussian_filtered)
+            sigmas = range(1, 11, 1)
+            for sigma in sigmas:
+                # sigma_filter = 1
+                gaussian_result_path = path.join(
+                    results_path, 'gaussian_filter', noise_type, rate, str(sigma))
+                gaussian_filtered = ndimage.gaussian_filter(
+                    img, sigma=sigma)
+                improc.save_img(gaussian_result_path, img_file, gaussian_filtered)
 
             # Median filter
-            median_size = 5
-            median_result_path = path.join(
-                results_path, 'median_filter', type, rate, str(median_size))
-            median_filtered = ndimage.median_filter(img, size=median_size)
-            improc.save_img(median_result_path, img_file, median_filtered)
+            sizes = range(1, 11, 1)
+            for size in sizes:
+                # median_size = 5
+                median_result_path = path.join(
+                    results_path, 'median_filter', noise_type, rate, str(size))
+                median_filtered = ndimage.median_filter(img, size=size)
+                improc.save_img(median_result_path, img_file, median_filtered)
 
 
 def run_comparisons():
@@ -134,11 +178,8 @@ def run_comparisons():
 
             compare_path = path.join(
                 processed_path, img_file)
-            # noisy_compare_path = path.join(
-            #     noisy_path, noise_type, noise_rate, img_file)
             compare = improc.read_preprocess(compare_path)
 
-            # print(filter_type, noise_type, noise_rate, variable)
             result_mse, result_ssim = get_comparisons(compare, result)
             result_mse = round(result_mse, 4)
             result_ssim = round(result_ssim, 4)
@@ -163,7 +204,7 @@ def run_comparisons():
 
 def run_test():
     sample = cv.imread(
-        "./test2.png", cv.IMREAD_GRAYSCALE)
+        "./test.jpg", cv.IMREAD_GRAYSCALE)
     result = sample.copy()
     timelapse = sample.copy()
 
@@ -185,7 +226,8 @@ if __name__ == '__main__':
         "./") + config["paths"]["samples"]["noisy"])
     processed_path = path.normpath(path.abspath(
         "./") + config["paths"]["samples"]["processed"])
-    results_path = path.normpath(path.abspath("./results/"))
+    results_path = path.normpath(path.abspath(
+        "./") + config["paths"]["results"])
 
     ichoice = int(input(
         "(1) Run CA filter\n"
@@ -193,19 +235,20 @@ if __name__ == '__main__':
         "(3) Clear results\n"
         "(4) Get comparisons\n"
         "(5) Run test\n"
+        "(6) Run CA median filter\n"
         "Choice: "))
     print(ichoice)
-    if(ichoice == 1):
+    if ichoice == 1:
         run()
-    elif(ichoice == 2):
+    elif ichoice == 2:
         run_filters()
-    elif(ichoice == 3):
+    elif ichoice == 3:
         clear_dir(results_path)
-    elif(ichoice == 4):
+    elif ichoice == 4:
         run_comparisons()
-    elif(ichoice == 5):
+    elif ichoice == 5:
         run_test()
+    elif ichoice == 6:
+        run_ca_median()
     else:
-        exit(0)
-
-    # run_test()
+        sys.exit()
