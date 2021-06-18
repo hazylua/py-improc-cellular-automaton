@@ -146,7 +146,8 @@ def run_filters():
                     results_path, 'gaussian_filter', noise_type, rate, str(sigma))
                 gaussian_filtered = ndimage.gaussian_filter(
                     img, sigma=sigma)
-                improc.save_img(gaussian_result_path, img_file, gaussian_filtered)
+                improc.save_img(gaussian_result_path,
+                                img_file, gaussian_filtered)
 
             # Median filter
             sizes = range(1, 11, 1)
@@ -160,10 +161,14 @@ def run_filters():
 
 def run_comparisons():
     index = get_list_of_files(processed_path)
+    index_check = []
 
-    values = {}
+    values_ssim = {}
+    values_rmse = {}
     for root, dirs, files in walk(results_path, topdown=False):
         for img_file in files:
+            if img_file not in index_check:
+                index_check.append(img_file)
             img_file_root = path.join(root, img_file)
             img_file_root = path.normpath(img_file_root)
 
@@ -180,42 +185,32 @@ def run_comparisons():
                 processed_path, img_file)
             compare = improc.read_preprocess(compare_path)
 
-            result_mse, result_ssim = get_comparisons(compare, result)
-            result_mse = round(result_mse, 4)
+            result_rmse, result_ssim = get_comparisons(compare, result)
+            result_rmse = round(result_rmse, 4)
             result_ssim = round(result_ssim, 4)
-            print(result_mse, result_ssim)
+            print(img_file, result_rmse, result_ssim)
 
             key_mse = (filter_type, noise_type,
-                       noise_rate, variable, 'mse')
+                       noise_rate, variable)
             key_ssim = (filter_type, noise_type,
-                        noise_rate, variable, 'ssmi')
-            if key_mse not in values:
-                values[key_mse] = []
-            if key_ssim not in values:
-                values[key_ssim] = []
-            values[key_mse].append(result_mse)
-            values[key_ssim].append(result_ssim)
+                        noise_rate, variable)
 
-    df = pd.DataFrame(values, index=index)
-    table_path = './table.xlsx'
-    df.to_excel(table_path, encoding='utf-8')
-    print(df)
+            if key_mse not in values_rmse:
+                values_rmse[key_mse] = []
+            if key_ssim not in values_ssim:
+                values_ssim[key_ssim] = []
+            values_rmse[key_mse].append(result_rmse)
+            values_ssim[key_ssim].append(result_ssim)
 
+    df_rmse = pd.DataFrame(values_rmse, index=index)
+    df_ssim = pd.DataFrame(values_ssim, index=index)
+    table_ssim_path = './table_ssim.xlsx'
+    table_rmse_path = './table_rmse.xlsx'
+    df_rmse.to_excel(table_rmse_path, encoding='utf-8')
+    df_ssim.to_excel(table_ssim_path, encoding='utf-8')
 
-def run_test():
-    sample = cv.imread(
-        "./test.jpg", cv.IMREAD_GRAYSCALE)
-    result = sample.copy()
-    timelapse = sample.copy()
-
-    for _ in range(10):
-        result = ca_filter(result, 1)
-        timelapse = np.concatenate((timelapse, result), axis=1)
-        print(get_comparisons(sample, result))
-        # result = ndimage.gaussian_filter(sample, 1)
-        # result = ndimage.median_filter(sample, size=5)
-    plt.imshow(timelapse, cmap="gray")
-    plt.show()
+    print(index, '#'*50, index_check, '#'*50)
+    print(df_rmse, '*'*50, df_ssim)
 
 
 if __name__ == '__main__':
